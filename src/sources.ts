@@ -26,6 +26,31 @@ export const sources: Record<string, SourceRef> = {
     short: 'Epoch AI, frontier training cost estimates',
     url: 'https://epoch.ai/',
   },
+  deepSeekV3Paper: {
+    id: 'deepSeekV3Paper',
+    short: 'DeepSeek-V3 technical report (GPU-h, compute cost)',
+    url: 'https://arxiv.org/abs/2412.19437',
+  },
+  bloomModelCard: {
+    id: 'bloomModelCard',
+    short: 'BigScience, BLOOM 176B model card',
+    url: 'https://huggingface.co/bigscience/bloom',
+  },
+  openAiPricing: {
+    id: 'openAiPricing',
+    short: 'OpenAI API pricing',
+    url: 'https://openai.com/api/pricing/',
+  },
+  anthropicPricing: {
+    id: 'anthropicPricing',
+    short: 'Anthropic API pricing',
+    url: 'https://www.anthropic.com/pricing',
+  },
+  googleGeminiPricing: {
+    id: 'googleGeminiPricing',
+    short: 'Google Gemini API pricing',
+    url: 'https://ai.google.dev/gemini-api/docs/pricing',
+  },
   berkeley2024: {
     id: 'berkeley2024',
     short: 'Berkeley Lab, US DC energy (2024)',
