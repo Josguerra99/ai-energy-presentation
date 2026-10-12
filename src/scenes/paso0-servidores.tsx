@@ -28,6 +28,11 @@ import {
 import {ConsolidateWorkloads, CONSOL_APPS, CONSOL_END_X, CONSOL_END_Y} from '../components/ConsolidateWorkloads';
 import {DifferentOsSlide} from '../components/DifferentOsSlide';
 import {
+  ContainersDockerSlide,
+  HypervisorVirtualizationSlide,
+  VirtualizationCompareSlide,
+} from '../components/VirtualizationSlides';
+import {
   AiBehindTheScenes,
   MAGIC_IN_X,
   MAGIC_MACHINE_X,
@@ -71,7 +76,10 @@ import {
 import {
   LlmCostCompareScaleSlide,
   LlmPromptCostSlide,
-  LlmTrainingCostSlide,
+  LlmDeepSeekTrainVsInferSlide,
+  LlmTrainingModelSlide,
+  COST_HIGHLIGHT_OPACITY,
+  TRAINING_MODEL_PROFILES,
 } from '../components/LlmIndustrialCostSlides';
 import {
   CpuGpuSlide,
@@ -92,6 +100,7 @@ import {
   SHADER_CALLOUTS,
 } from '../components/CpuGpuSlide';
 import {pueTrend} from '../data/pueTrend';
+import {deepSeekTrainVsInferPieWithAngles} from '../data/deepSeekTrainVsInfer';
 import {tcoSlicesWithAngles} from '../data/tcoSlices';
 import {slide, theme} from '../theme';
 
@@ -1402,56 +1411,11 @@ export default makeScene2D(function* (view) {
   yield* all(...gpuLiveTiles.map(t => t().opacity(0, 0.2, easeOutCubic)));
   yield* beginSlide('ia-gpu-paralelo');
 
-  // —— Slides 0c–0e: costos industrial (entrenar · prompt · comparación) ——
-  yield* scrollTo(panel => {
-    panel.add(
-      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
-        <LlmTrainingCostSlide />
-      </Layout>,
-    );
-  });
-  setFooter([
-    'llama31Card',
-    'metaLlamaBlog',
-    'deepSeekV3Paper',
-    'bloomModelCard',
-    'epochAi',
-  ]);
-  yield* beginSlide('ia-costos-entrenamiento');
-
-  yield* scrollTo(panel => {
-    panel.add(
-      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
-        <LlmPromptCostSlide />
-      </Layout>,
-    );
-  });
-  setFooter([
-    'openAiPricing',
-    'anthropicPricing',
-    'googleGeminiPricing',
-  ]);
-  yield* beginSlide('ia-costos-prompt');
-
-  yield* scrollTo(panel => {
-    panel.add(
-      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
-        <LlmCostCompareScaleSlide />
-      </Layout>,
-    );
-  });
-  setFooter([
-    'llama31Card',
-    'stanfordAiIndex2025',
-    'epochAi',
-    'openAiPricing',
-  ]);
-  yield* beginSlide('ia-costos-comparacion');
-
-  // —— Slide 1: TCO pie ——
+  // —— Correr un servidor (TCO) → puente antes de costes de entrenamiento ——
   const tcoSlices = tcoSlicesWithAngles();
   const pieSliceRefs = tcoSlices.map(() => createRef<Circle>());
   const questionTxt = createRef<Txt>();
+  const serverLeadTxt = createRef<Txt>();
   const pieWrap = createRef<Layout>();
   const stage = createRef<Layout>();
 
@@ -1460,7 +1424,7 @@ export default makeScene2D(function* (view) {
       <Layout ref={stage} layout={false} width={CONTENT_W} height={CONTENT_H}>
         <Txt
           ref={questionTxt}
-          text="¿Cuánto cuesta un servidor de $5,000?"
+          text={'¿Cuánto cuesta correr un servidor?'}
           fontFamily={theme.bodyFont}
           fontSize={52}
           fontWeight={700}
@@ -1468,6 +1432,17 @@ export default makeScene2D(function* (view) {
           textAlign="center"
           x={0}
           y={0}
+        />
+        <Txt
+          ref={serverLeadTxt}
+          text="Ejemplo: compra ~$5,000 · TCO ~5 años"
+          fontFamily={theme.bodyFont}
+          fontSize={26}
+          fontWeight={500}
+          fill={theme.grey}
+          textAlign="center"
+          x={0}
+          y={48}
         />
       </Layout>,
     );
@@ -1484,6 +1459,7 @@ export default makeScene2D(function* (view) {
   const pieDuration = 1;
   yield* all(
     questionTxt().y(-340, pieDuration, easeOutCubic),
+    serverLeadTxt().y(-292, pieDuration, easeOutCubic),
     pieWrap().opacity(1, pieDuration * 0.85, easeOutCubic),
     pieWrap().y(40, pieDuration, easeOutCubic),
     ...tcoSlices.map((slice, i) =>
@@ -1492,7 +1468,111 @@ export default makeScene2D(function* (view) {
   );
   yield* beginSlide('servidor-costo-listo');
 
-  // —— Slide 2: electricidad IT ≠ electricidad del sitio ——
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <LlmCostCompareScaleSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['ieeeTco']);
+  yield* beginSlide('ia-costos-comparacion');
+
+  // —— Entrenamiento industrial (costes publicados / est.) ——
+  for (const trainProfile of TRAINING_MODEL_PROFILES) {
+    const trainRunHighlight = createRef<Rect>();
+    const trainCapexHighlight = createRef<Rect>();
+    yield* scrollTo(panel => {
+      panel.add(
+        <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+          <LlmTrainingModelSlide
+            profile={trainProfile}
+            runHighlightRef={trainRunHighlight}
+            capexHighlightRef={trainCapexHighlight}
+          />
+        </Layout>,
+      );
+    });
+    setFooter([...trainProfile.footerIds]);
+    yield* beginSlide(trainProfile.slideId);
+
+    const highlightRun = trainProfile.facts.some(f => f.costHighlight === 'run');
+    const highlightCapex = trainProfile.facts.some(
+      f => f.costHighlight === 'capex',
+    );
+
+    if (highlightRun) {
+      yield* trainRunHighlight().opacity(
+        COST_HIGHLIGHT_OPACITY,
+        0.4,
+        easeOutCubic,
+      );
+      yield* beginSlide(`${trainProfile.slideId}-coste-run`);
+    }
+
+    if (highlightCapex) {
+      if (highlightRun) {
+        yield* all(
+          trainRunHighlight().opacity(0, 0.25, easeOutCubic),
+          trainCapexHighlight().opacity(
+            COST_HIGHLIGHT_OPACITY,
+            0.4,
+            easeOutCubic,
+          ),
+        );
+      } else {
+        yield* trainCapexHighlight().opacity(
+          COST_HIGHLIGHT_OPACITY,
+          0.4,
+          easeOutCubic,
+        );
+      }
+      yield* beginSlide(`${trainProfile.slideId}-coste-capex`);
+    }
+  }
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <LlmPromptCostSlide />
+      </Layout>,
+    );
+  });
+  setFooter([
+    'googleGeminiPricing',
+    'openAiPricingDocs',
+    'anthropicPricing',
+    'deepSeekApiPricing',
+    'metaLlamaApiHosted',
+  ]);
+  yield* beginSlide('ia-costos-prompt');
+
+  const trainInferPieSlices = deepSeekTrainVsInferPieWithAngles();
+  const trainInferPieRefs = trainInferPieSlices.map(() => createRef<Circle>());
+  const trainInferPieWrap = createRef<Layout>();
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <Layout ref={trainInferPieWrap} layout={false} opacity={0}>
+          <LlmDeepSeekTrainVsInferSlide pieSliceRefs={trainInferPieRefs} />
+        </Layout>
+      </Layout>,
+    );
+  });
+  setFooter(['deepSeekV3Paper', 'deepSeekApiPricing', 'nistDeepSeekEval2025']);
+  yield* beginSlide('ia-costos-train-vs-infer-deepseek');
+
+  const trainInferPieDur = 1;
+  yield* all(
+    trainInferPieWrap().opacity(1, trainInferPieDur * 0.85, easeOutCubic),
+    ...trainInferPieSlices.map((slice, i) =>
+      trainInferPieRefs[i]().endAngle(slice.endAngle, trainInferPieDur, easeOutCubic),
+    ),
+  );
+  yield* beginSlide('ia-costos-train-vs-infer-deepseek-listo');
+
+  // —— Electricidad del sitio + PUE (antes de la tendencia histórica) ——
   const itBar = createRef<Rect>();
   const itLabel = createRef<Txt>();
   const segmentRefs = facilityLoads.map(() => createRef<Rect>());
@@ -1560,6 +1640,7 @@ export default makeScene2D(function* (view) {
   yield* beginSlide('electricidad');
 
   yield* all(
+    itBar().opacity(1, 0.01),
     itBar().height(kwHeight(IT_KW), 0.7, easeOutCubic),
     itLabel().opacity(1, 0.5),
   );
@@ -1567,6 +1648,7 @@ export default makeScene2D(function* (view) {
 
   for (let i = 0; i < facilityLoads.length; i++) {
     yield* all(
+      segmentRefs[i]().opacity(1, 0.01),
       segmentRefs[i]().height(kwHeight(facilityLoads[i].kw), 0.35, easeOutCubic),
       labelRefs[i]().opacity(1, 0.3),
     );
@@ -1580,7 +1662,7 @@ export default makeScene2D(function* (view) {
   yield* doeBench().opacity(1, 0.5, easeOutCubic);
   yield* beginSlide('pue-doe');
 
-  // —— Slide 3: PUE histórico (Uptime) ——
+  // —— PUE histórico (Uptime) ——
   const pueLine = createRef<Line>();
   const puePointRefs = pueTrend.map(() => createRef<Circle>());
   const pueLabelRefs = pueTrend.map(() => createRef<Txt>());
@@ -1741,4 +1823,35 @@ export default makeScene2D(function* (view) {
 
   yield* osPunch().opacity(1, 0.5);
   yield* beginSlide('os-conflicto-virt');
+
+  // —— Virtualización: hypervisor · contenedores · comparación ——
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <HypervisorVirtualizationSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['nistHypervisor125a', 'nistVmGlossary']);
+  yield* beginSlide('virt-hypervisor');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <ContainersDockerSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['nistContainers190', 'dockerOverview']);
+  yield* beginSlide('virt-contenedores-docker');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <VirtualizationCompareSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['doe', 'nistHypervisor125a', 'nistContainers190', 'berkeley2024']);
+  yield* beginSlide('virt-comparacion-escala');
 });

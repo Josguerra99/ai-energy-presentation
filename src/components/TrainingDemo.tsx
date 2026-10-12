@@ -333,7 +333,7 @@ export function TrainingDemo({
       {/* Tokens: nacen sobre el highlight y vuelan a la fila */}
       {TRAIN_TOKENS.map((word, i) => (
         <Layout
-          key={`tok-${i}`}
+          key={`train-tok-${i}`}
           ref={tokenRefs[i]}
           layout={false}
           x={trainSourceX(i)}
@@ -370,7 +370,7 @@ export function TrainingDemo({
       {/* Clones: copia visual que entra al modelo; los tokens reales no se mueven */}
       {TRAIN_TOKENS.map((word, i) => (
         <Layout
-          key={`clone-${i}`}
+          key={`train-clone-${i}`}
           ref={cloneRefs[i]}
           layout={false}
           x={trainTokenX(i)}
@@ -471,7 +471,7 @@ export function TrainingDemo({
         <Layout layout={false} y={28}>
           {['0.42', '-1.7', '0.08', '2.3'].map((n, i) => (
             <Txt
-              key={`p-${i}`}
+              key={`train-p-${i}`}
               ref={paramRefs[i]}
               text={n}
               fontFamily={theme.bodyFont}

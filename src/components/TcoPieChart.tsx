@@ -1,6 +1,6 @@
 import {Circle, Layout, Line, Rect, Txt} from '@motion-canvas/2d';
 import type {Reference} from '@motion-canvas/core';
-import {formatUsd, TCO_TOTAL_USD} from '../data/tcoSlices';
+import {formatUsd, TCO_TOTAL_USD, tcoLegendAmount} from '../data/tcoSlices';
 import type {TcoSliceAngles} from '../data/tcoSlices';
 import {theme} from '../theme';
 import {HypotheticalDisclaimer} from './HypotheticalDisclaimer';
@@ -41,7 +41,7 @@ function buildLegend(slices: TcoSliceAngles[], originY: number): LegendEntry[] {
   const entries: LegendEntry[] = [];
   let y = originY;
 
-  entries.push({type: 'header', text: 'CAPEX', y});
+  entries.push({type: 'header', text: 'CAPEX (compra / equip.)', y});
   y += HEADER_STEP;
   for (const slice of capex) {
     entries.push({type: 'item', slice, y});
@@ -49,7 +49,7 @@ function buildLegend(slices: TcoSliceAngles[], originY: number): LegendEntry[] {
   }
 
   y += SECTION_GAP;
-  entries.push({type: 'header', text: 'OPEX', y});
+  entries.push({type: 'header', text: 'OPEX (total ~5 años)', y});
   y += HEADER_STEP;
   for (const slice of opex) {
     entries.push({type: 'item', slice, y});
@@ -74,9 +74,15 @@ function legendHeight(slices: TcoSliceAngles[]): number {
 type TcoPieChartProps = {
   slices: TcoSliceAngles[];
   sliceRefs: Reference<Circle>[];
+  /** Keys únicos MC si el pie se monta más de una vez en recalculate. */
+  nodeKeyPrefix?: string;
 };
 
-export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
+export function TcoPieChart({
+  slices,
+  sliceRefs,
+  nodeKeyPrefix = 'tco-servidor',
+}: TcoPieChartProps) {
   const titleY = -H / 2 + 32;
   const contentCenterY = titleY + TITLE_TO_CONTENT_GAP + 24 + legendHeight(slices) / 2;
   const legendOriginY = contentCenterY - legendHeight(slices) / 2;
@@ -86,7 +92,7 @@ export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
   return (
     <Layout layout={false} width={W} height={H}>
       <Txt
-        text={`TCO ~5 AÑOS · ${formatUsd(TCO_TOTAL_USD)}`}
+        text={`TCO ~5 AÑOS · ${formatUsd(TCO_TOTAL_USD)} total`}
         fontFamily={theme.pixelFont}
         fontSize={40}
         fill={theme.black}
@@ -99,7 +105,7 @@ export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
       <Circle x={PIE_X} y={pieY} size={PIE + 10} fill={theme.black} />
       {slices.map((slice, i) => (
         <Circle
-          key={slice.id}
+          key={`${nodeKeyPrefix}-slice-${slice.id}`}
           ref={sliceRefs[i]}
           x={PIE_X}
           y={pieY}
@@ -112,7 +118,7 @@ export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
       ))}
       {slices.map(slice => (
         <Line
-          key={`div-${slice.id}`}
+          key={`${nodeKeyPrefix}-div-${slice.id}`}
           x={PIE_X}
           y={pieY}
           points={radialPoints(slice.startAngle)}
@@ -126,7 +132,7 @@ export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
         if (entry.type === 'header') {
           return (
             <Txt
-              key={`hdr-${entry.text}`}
+              key={`${nodeKeyPrefix}-hdr-${entry.text}`}
               x={LEGEND_X - 220}
               y={entry.y}
               offsetX={-1}
@@ -141,7 +147,12 @@ export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
 
         const {slice, y} = entry;
         return (
-          <Layout key={slice.id} layout={false} x={LEGEND_X} y={y}>
+          <Layout
+            key={`${nodeKeyPrefix}-leg-${slice.id}`}
+            layout={false}
+            x={LEGEND_X}
+            y={y}
+          >
             <Rect
               x={-220}
               width={20}
@@ -153,7 +164,7 @@ export function TcoPieChart({slices, sliceRefs}: TcoPieChartProps) {
             <Txt
               x={-190}
               offsetX={-1}
-              text={`${slice.label} · ${formatUsd(slice.dollars)}`}
+              text={`${slice.label} · ${tcoLegendAmount(slice)}`}
               fontFamily={theme.bodyFont}
               fontSize={22}
               fontWeight={500}

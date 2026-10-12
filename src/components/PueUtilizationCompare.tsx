@@ -10,6 +10,7 @@ const GRID_GAP = 5;
 const IDLE = '#3A3A3A';
 
 type ServerGridProps = {
+  nodeKeyPrefix: string;
   count: number;
   cols: number;
   cell: number;
@@ -17,7 +18,14 @@ type ServerGridProps = {
   fillRefs: Reference<Rect>[];
 };
 
-function ServerGrid({count, cols, cell, accent, fillRefs}: ServerGridProps) {
+function ServerGrid({
+  nodeKeyPrefix,
+  count,
+  cols,
+  cell,
+  accent,
+  fillRefs,
+}: ServerGridProps) {
   const rows = Math.ceil(count / cols);
   const gridW = cols * cell + (cols - 1) * GRID_GAP;
   const gridH = rows * cell + (rows - 1) * GRID_GAP;
@@ -31,7 +39,7 @@ function ServerGrid({count, cols, cell, accent, fillRefs}: ServerGridProps) {
         const cx = -gridW / 2 + col * (cell + GRID_GAP) + cell / 2;
         const cy = -gridH / 2 + row * (cell + GRID_GAP) + cell / 2;
         return (
-          <Layout key={`g-${i}`} layout={false} x={cx} y={cy}>
+          <Layout key={`${nodeKeyPrefix}-g-${i}`} layout={false} x={cx} y={cy}>
             <Rect
               width={cell}
               height={cell}
@@ -71,6 +79,7 @@ type SideProps = {
   gridRef: Reference<Layout>;
   statsRef: Reference<Layout>;
   fillRefs: Reference<Rect>[];
+  gridKeyPrefix: string;
   /** Borde del cuadro negro (p. ej. ganador). */
   boxRef?: Reference<Rect>;
   /** Badge “GANADOR” opcional. */
@@ -96,6 +105,7 @@ function DataCenterSide({
   gridRef,
   statsRef,
   fillRefs,
+  gridKeyPrefix,
   boxRef,
   winnerRef,
   totalChipRef,
@@ -140,6 +150,7 @@ function DataCenterSide({
         />
         <Layout ref={gridRef} layout={false} opacity={0}>
           <ServerGrid
+            nodeKeyPrefix={gridKeyPrefix}
             count={servers}
             cols={gridCols}
             cell={gridCell}
@@ -286,6 +297,7 @@ export function PueUtilizationCompare({
         gridRef={gridA}
         statsRef={statsA}
         fillRefs={fillA}
+        gridKeyPrefix="pue-cmp-a"
       />
       <DataCenterSide
         x={380}
@@ -307,6 +319,7 @@ export function PueUtilizationCompare({
         boxRef={winnerBox}
         winnerRef={winnerBadge}
         totalChipRef={winnerChip}
+        gridKeyPrefix="pue-cmp-b"
       />
     </Layout>
   );

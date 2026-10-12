@@ -160,7 +160,7 @@ export function TrainingCostsSlide() {
           </Layout>
         ))}
         <Txt
-          text="No son facturas internas de OpenAI/Google.\nEl hardware se reutiliza: comprarlo ≠ costo del run."
+          text="No son facturas internas de OpenAI/Google.\nEl hardware se reutiliza: comprarlo ≠ costo de entrenar."
           fontFamily={theme.bodyFont}
           fontSize={18}
           fill={theme.grey}

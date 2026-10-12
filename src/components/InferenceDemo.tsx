@@ -147,7 +147,7 @@ export function InferenceDemo({
         const {x, y} = infCellAbs(i);
         return (
           <Layout
-            key={`tok-${i}`}
+            key={`inf-tok-${i}`}
             ref={tokenRefs[i]}
             layout={false}
             x={x}
@@ -185,7 +185,7 @@ export function InferenceDemo({
       {/* Clones para animar entrada al modelo */}
       {Array.from({length: INF_CLONE_MAX}, (_, i) => (
         <Layout
-          key={`clone-${i}`}
+          key={`inf-clone-${i}`}
           ref={cloneRefs[i]}
           layout={false}
           x={0}
@@ -341,7 +341,7 @@ export function InferenceDemo({
         <Layout layout={false} y={28}>
           {INF_FINAL_WEIGHTS.map((n, i) => (
             <Txt
-              key={`p-${i}`}
+              key={`inf-p-${i}`}
               ref={paramRefs[i]}
               text={n}
               fontFamily={theme.bodyFont}

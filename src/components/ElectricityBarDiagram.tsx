@@ -80,6 +80,7 @@ export function ElectricityBarDiagram({
         stroke={theme.black}
         lineWidth={theme.border}
         offsetY={1}
+        opacity={0}
       />
       <Txt
         ref={itLabel}
@@ -112,6 +113,7 @@ export function ElectricityBarDiagram({
               stroke={theme.black}
               lineWidth={2}
               offsetY={1}
+              opacity={0}
             />
             <Txt
               ref={labelRefs[i]}
