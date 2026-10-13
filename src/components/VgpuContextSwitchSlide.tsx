@@ -334,67 +334,331 @@ function Box({
   );
 }
 
-/** Layout legacy fase GPU (sin cambiar en este paso). */
-const GPU_LAYOUT = {
-  vmX: 260,
-  vmY: -198,
-  vmHalfH: 52,
-  hypY: -92,
-  hypH: 54,
-  socketCaptionY: -38,
-  siliconRowY: 72,
-  dieX: -268,
-  ramX: 268,
-  siliconBoxH: 148,
-  footnoteY: 228,
+/** Fase GPU: chip + VRAM (GB) + RAM host (como CPU). */
+const GPU = {
+  /** Alineado con la fila CPU (`cpuPhase` y=24 + `CPU.cpuY`). */
+  chipY: 36,
+  chipW: 440,
+  computeH: 152,
+  /** Canal SM → VRAM (flechas en el gris, sin tapar HBM). */
+  smVramGap: 44,
+  vramH: 52,
+  /** Espacio para etiqueta PCIe en el conector. */
+  ramGap: 168,
+  ramW: 280,
+  ramH: 108,
+  gridCols: 22,
+  gridRows: 12,
+  cell: 6,
+  cellGap: 2,
+  vmRowY: 268,
+  vmX: 220,
+  vmW: 160,
+  vmH: 92,
+  /** VRAM típica H100 SXM / PCIe. */
+  vramGbLabel: '80 GB',
+  hostRamGbLabel: '512 GB',
+  vramInnerW: 440 - 24,
+  vramInnerH: 52 - 14,
+  /** Margen del texto respecto al borde interior de VRAM. */
+  vramTextPadX: 12,
+  vramTextPadY: 10,
 } as const;
 
-function gpuVmDropStart() {
-  return GPU_LAYOUT.vmY + GPU_LAYOUT.vmHalfH + 8;
-}
-function gpuVmDropEnd() {
-  return GPU_LAYOUT.hypY - GPU_LAYOUT.hypH / 2;
-}
-function gpuHypLineStart() {
-  return GPU_LAYOUT.hypY + GPU_LAYOUT.hypH / 2 + 14;
+export const GPU_VRAM_CAPACITY_GB = 80;
+export const GPU_VRAM_USED_GB = 60;
+export const GPU_VRAM_PARTIAL_EVAC_GB = 20;
+export const GPU_VRAM_VM2_TASK_GB = 40;
+export const GPU_PACKET_VRAM_20_LABEL = '20 GB';
+export const GPU_PACKET_VRAM_40_LABEL = '40 GB';
+
+export function gpuVramFillMetrics(usedGb: number): {
+  width: number;
+  x: number;
+  y: number;
+  leftX: number;
+} {
+  const trackW = GPU.vramInnerW;
+  const ratio = Math.min(Math.max(usedGb / GPU_VRAM_CAPACITY_GB, 0), 1);
+  const width = ratio * trackW;
+  const chip = gpuChipRegions();
+  const leftX = -GPU.vramInnerW / 2;
+  return {
+    width,
+    x: leftX + width / 2,
+    y: chip.vramCenterY,
+    leftX,
+  };
 }
 
-function VmBadge({
-  label,
-  sub,
-  active,
-}: {
-  label: string;
-  sub?: string;
-  active?: boolean;
-}) {
+const GPU_CHIP_H = GPU.computeH + GPU.smVramGap + GPU.vramH;
+
+function gpuChipRegions() {
+  const top = -GPU_CHIP_H / 2;
+  const computeCenterY = top + GPU.computeH / 2;
+  const gapTop = top + GPU.computeH;
+  const gapBottom = gapTop + GPU.smVramGap;
+  const vramCenterY = gapBottom + GPU.vramH / 2;
+  return {
+    top,
+    computeCenterY,
+    gapTop,
+    gapBottom,
+    vramCenterY,
+  };
+}
+
+function gpuRamCenterX() {
+  return GPU.chipW / 2 + GPU.ramGap + GPU.ramW / 2;
+}
+
+function gpuPcieLink() {
+  const y = GPU.chipY;
+  const left = GPU.chipW / 2 + 12;
+  const right = gpuRamCenterX() - GPU.ramW / 2 - 12;
+  return {y, left, right, midX: (left + right) / 2};
+}
+
+export const GPU_TRANSFER_PACKET_COUNT = 2;
+/** Paquete 0: contexto SM · paquete 1: bloques grandes (legacy anim.). */
+export const GPU_PACKET_MB_LABEL = 'estado SM';
+export const GPU_PACKET_FREEZE_LABEL = 'congelar';
+export const GPU_PACKET_GB_LABEL = GPU_PACKET_VRAM_40_LABEL;
+export const GPU_PACKET_MOVE_MB_SEC = 2.1;
+export const GPU_PACKET_MOVE_GB_SEC = 3.6;
+
+export const GPU_VM_PLUG_COUNT = 2;
+export const GPU_VM1_PLUG_COLOR = theme.magenta;
+export const GPU_VM2_PLUG_COLOR = theme.cyan;
+export const GPU_VM_PLUG_FLOW_SEC = 2.5;
+
+export function gpuVm1PlugAnchor(): [number, number] {
+  return [-GPU.vmX, GPU.vmRowY - GPU.vmH / 2 + 14];
+}
+
+export function gpuVm2PlugAnchor(): [number, number] {
+  return [GPU.vmX, GPU.vmRowY - GPU.vmH / 2 + 14];
+}
+
+export function gpuChipPlugAnchor(): [number, number] {
+  return [0, GPU.chipY + GPU_CHIP_H / 2 - 6];
+}
+
+function gpuVmPlugRoutePoints(
+  from: [number, number],
+  to: [number, number],
+): [number, number][] {
+  const [vx, vy] = from;
+  const [cx, cy] = to;
+  const busY = (vy + cy) / 2;
+  const busX = (vx + cx) / 2;
+  return [
+    [vx, vy],
+    [vx, vy + (busY - vy) * 0.55],
+    [busX, busY],
+    [cx, busY + (cy - busY) * 0.45],
+    [cx, cy],
+  ];
+}
+
+export function gpuVm1PlugRoute(): [number, number][] {
+  return gpuVmPlugRoutePoints(gpuVm1PlugAnchor(), gpuChipPlugAnchor());
+}
+
+export function gpuVm2PlugRoute(): [number, number][] {
+  return gpuVmPlugRoutePoints(gpuVm2PlugAnchor(), gpuChipPlugAnchor());
+}
+
+/** @deprecated use gpuVm1PlugRoute */
+export function gpuVmPlugRoute(): [number, number][] {
+  return gpuVm1PlugRoute();
+}
+
+function gpuVm1BusY() {
+  const [, vy] = gpuVm1PlugAnchor();
+  const [, cy] = gpuChipPlugAnchor();
+  return (vy + cy) / 2;
+}
+
+function gpuVm2BusY() {
+  const [, vy] = gpuVm2PlugAnchor();
+  const [, cy] = gpuChipPlugAnchor();
+  return (vy + cy) / 2;
+}
+
+function gpuVmBusSpan() {
+  const busY = gpuVm1BusY();
+  return {
+    busY,
+    left: -GPU.vmX - GPU.vmW / 2 - 36,
+    right: GPU.vmX + GPU.vmW / 2 + 36,
+  };
+}
+
+function gpuPlugBusJointForRoute(
+  pts: [number, number][],
+  busY: number,
+  color: string,
+): {position: [number, number]; color: string} | null {
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i];
+    const [x1, y1] = pts[i + 1];
+    if (Math.abs(y0 - busY) < 0.01) {
+      return {position: [x0, busY], color};
+    }
+    if ((y0 - busY) * (y1 - busY) < 0) {
+      const t = (busY - y0) / (y1 - y0);
+      return {position: [x0 + t * (x1 - x0), busY], color};
+    }
+  }
+  return null;
+}
+
+export function gpuVm1PlugBusJoint(): {
+  position: [number, number];
+  color: string;
+} | null {
+  return gpuPlugBusJointForRoute(
+    gpuVm1PlugRoute(),
+    gpuVm1BusY(),
+    GPU_VM1_PLUG_COLOR,
+  );
+}
+
+export function gpuVm2PlugBusJoint(): {
+  position: [number, number];
+  color: string;
+} | null {
+  return gpuPlugBusJointForRoute(
+    gpuVm2PlugRoute(),
+    gpuVm2BusY(),
+    GPU_VM2_PLUG_COLOR,
+  );
+}
+
+export function gpuVmPlugBusJoint(): {
+  position: [number, number];
+  color: string;
+} | null {
+  return gpuVm1PlugBusJoint();
+}
+
+function gpuSmContextOrigin(): [number, number] {
+  const chip = gpuChipRegions();
+  return [0, GPU.chipY + chip.computeCenterY];
+}
+
+export function gpuTransferPacketRoute(
+  kind:
+    | 'sm-context-host'
+    | 'sm-context-vram'
+    | 'sm-context'
+    | 'sm-mb'
+    | 'vram-gb',
+): {from: [number, number]; to: [number, number]} {
+  const pcie = gpuPcieLink();
+  const chip = gpuChipRegions();
+  const toHostRam: [number, number] = [
+    gpuRamCenterX() - GPU.ramW / 2 + 52,
+    GPU.chipY,
+  ];
+  const fromVram: [number, number] = [
+    pcie.left,
+    GPU.chipY + chip.vramCenterY,
+  ];
+  const fromSmPcie: [number, number] = [
+    pcie.left,
+    GPU.chipY + chip.gapTop - 6,
+  ];
+  if (kind === 'sm-context-host' || kind === 'sm-mb') {
+    return {from: fromSmPcie, to: toHostRam};
+  }
+  if (kind === 'sm-context-vram' || kind === 'sm-context') {
+    return {
+      from: gpuSmContextOrigin(),
+      to: [-GPU.vramInnerW / 2 + 44, GPU.chipY + chip.vramCenterY],
+    };
+  }
+  return {from: fromVram, to: toHostRam};
+}
+
+export function gpuTransferPacketRouteRamToVram(): {
+  from: [number, number];
+  to: [number, number];
+} {
+  const pcie = gpuPcieLink();
+  const chip = gpuChipRegions();
+  return {
+    from: [gpuRamCenterX() - GPU.ramW / 2 + 52, GPU.chipY],
+    to: [pcie.left, GPU.chipY + chip.vramCenterY],
+  };
+}
+
+function gpuComputeGridOrigin(): {startX: number; startY: number} {
+  const gridW = GPU.gridCols * GPU.cell + (GPU.gridCols - 1) * GPU.cellGap;
+  const gridH = GPU.gridRows * GPU.cell + (GPU.gridRows - 1) * GPU.cellGap;
+  return {
+    startX: -gridW / 2 + GPU.cell / 2,
+    startY: -GPU_CHIP_H / 2 + (GPU.computeH - gridH) / 2 + GPU.cell / 2,
+  };
+}
+
+/** Flechas SM → VRAM (ancho de banda on-chip). */
+function GpuSmToVramLinks() {
+  const {gapTop, gapBottom} = gpuChipRegions();
+  const yFrom = gapTop + 8;
+  const yTo = gapBottom - 10;
+  const innerHalf = (GPU.chipW - 24) / 2 - 32;
+  const xs = [-0.85, -0.42, 0, 0.42, 0.85].map(t => t * innerHalf);
+
   return (
     <Layout layout={false}>
-      <Rect width={148} height={sub ? 96 : 80} fill={theme.black} x={3} y={3} />
-      <Rect
-        width={148}
-        height={sub ? 96 : 80}
-        fill={active ? theme.yellow : theme.white}
-        stroke={theme.black}
-        lineWidth={active ? 4 : 2}
-      />
-      <Txt
-        text={label}
-        fontFamily={theme.pixelFont}
-        fontSize={22}
-        fill={theme.black}
-        y={sub ? -10 : 0}
-      />
-      {sub ? (
-        <Txt
-          text={sub}
-          fontFamily={theme.bodyFont}
-          fontSize={13}
-          fontWeight={600}
-          fill={theme.grey}
-          y={18}
+      {xs.map((x, i) => (
+        <Line
+          key={`sm-vram-link-${i}`}
+          points={[
+            [x, yFrom],
+            [x, yTo],
+          ]}
+          stroke={theme.white}
+          lineWidth={2.5}
+          lineCap="round"
+          endArrow
+          arrowSize={11}
         />
-      ) : null}
+      ))}
+    </Layout>
+  );
+}
+
+function GpuComputeGrid() {
+  const {startX, startY} = gpuComputeGridOrigin();
+  const cells: {x: number; y: number; i: number}[] = [];
+  let i = 0;
+  for (let r = 0; r < GPU.gridRows; r++) {
+    for (let c = 0; c < GPU.gridCols; c++) {
+      cells.push({
+        x: startX + c * (GPU.cell + GPU.cellGap),
+        y: startY + r * (GPU.cell + GPU.cellGap),
+        i: i++,
+      });
+    }
+  }
+  const hues = [theme.cyan, '#4ADE80', '#22C55E', '#16A34A'];
+  return (
+    <Layout layout={false}>
+      {cells.map(({x, y, i: idx}) => (
+        <Rect
+          key={`gpu-sm-${idx}`}
+          width={GPU.cell}
+          height={GPU.cell}
+          x={x}
+          y={y}
+          fill={hues[idx % hues.length]}
+          stroke={theme.black}
+          lineWidth={0.5}
+        />
+      ))}
     </Layout>
   );
 }
@@ -414,14 +678,29 @@ export type VgpuContextSwitchSlideProps = {
   cpuBusJointRefs: Reference<Circle>[];
   cpuContextPacketRefs: Reference<Rect>[];
   gpuPhaseRef: Reference<Layout>;
-  conclusionRef: Reference<Layout>;
-  gpuVmARef: Reference<Layout>;
-  gpuVmBRef: Reference<Layout>;
-  gpuHypervisorRef: Reference<Layout>;
   gpuCoreRef: Reference<Layout>;
-  gpuSpillGroupRef: Reference<Layout>;
-  gpuSpillChunkRef: Reference<Rect>;
-  gpuFootnoteRef: Reference<Txt>;
+  gpuRamRef: Reference<Layout>;
+  gpuVramFillRef: Reference<Rect>;
+  gpuVramUsageRef: Reference<Txt>;
+  gpuTransferPacketRefs: Reference<Layout>[];
+  gpuTransferPacketLabelRefs: Reference<Txt>[];
+  gpuVm1Ref: Reference<Layout>;
+  gpuVm2Ref: Reference<Layout>;
+  gpuVm1BodyRef: Reference<Rect>;
+  gpuVm1PortRef: Reference<Rect>;
+  gpuVm1ActiveLabelRef: Reference<Txt>;
+  gpuVm1LabelRef: Reference<Txt>;
+  gpuVm2BodyRef: Reference<Rect>;
+  gpuVm2PortRef: Reference<Rect>;
+  gpuVm2ActiveLabelRef: Reference<Txt>;
+  gpuVm2LabelRef: Reference<Txt>;
+  gpuVm2TaskRef: Reference<Layout>;
+  gpuPlugBaseRef: Reference<Spline>;
+  gpuPlugFlowRef: Reference<Spline>;
+  gpuBusJointRef: Reference<Circle>;
+  gpuPlug2BaseRef: Reference<Spline>;
+  gpuPlug2FlowRef: Reference<Spline>;
+  gpuBusJoint2Ref: Reference<Circle>;
 };
 
 /**
@@ -442,15 +721,39 @@ export function VgpuContextSwitchSlide({
   cpuBusJointRefs,
   cpuContextPacketRefs,
   gpuPhaseRef,
-  conclusionRef,
-  gpuVmARef,
-  gpuVmBRef,
-  gpuHypervisorRef,
   gpuCoreRef,
-  gpuSpillGroupRef,
-  gpuSpillChunkRef,
-  gpuFootnoteRef,
+  gpuRamRef,
+  gpuVramFillRef,
+  gpuVramUsageRef,
+  gpuTransferPacketRefs,
+  gpuTransferPacketLabelRefs,
+  gpuVm1Ref,
+  gpuVm2Ref,
+  gpuVm1BodyRef,
+  gpuVm1PortRef,
+  gpuVm1ActiveLabelRef,
+  gpuVm1LabelRef,
+  gpuVm2BodyRef,
+  gpuVm2PortRef,
+  gpuVm2ActiveLabelRef,
+  gpuVm2LabelRef,
+  gpuVm2TaskRef,
+  gpuPlugBaseRef,
+  gpuPlugFlowRef,
+  gpuBusJointRef,
+  gpuPlug2BaseRef,
+  gpuPlug2FlowRef,
+  gpuBusJoint2Ref,
 }: VgpuContextSwitchSlideProps) {
+  const gpuPcie = gpuPcieLink();
+  const gpuChip = gpuChipRegions();
+  const gpuVm1PlugPts = gpuVm1PlugRoute();
+  const gpuVm2PlugPts = gpuVm2PlugRoute();
+  const gpuVmBus = gpuVmBusSpan();
+  const gpuVm1Joint = gpuVm1PlugBusJoint();
+  const gpuVm2Joint = gpuVm2PlugBusJoint();
+  const gpuVramInitial = gpuVramFillMetrics(GPU_VRAM_USED_GB);
+
   return (
     <Layout layout={false} width={'100%'} height={'100%'}>
       <Txt
@@ -668,298 +971,338 @@ export function VgpuContextSwitchSlide({
       </Layout>
 
       {/* —— Fase GPU —— */}
-      <Layout ref={gpuPhaseRef} layout={false} y={72} opacity={0}>
-        <Layout
-          ref={gpuVmARef}
-          layout={false}
-          x={-GPU_LAYOUT.vmX}
-          y={GPU_LAYOUT.vmY}
-          opacity={0.4}
-        >
-          <VmBadge label="VM A" sub="perfil vGPU" />
-        </Layout>
-        <Layout ref={gpuVmBRef} layout={false} x={GPU_LAYOUT.vmX} y={GPU_LAYOUT.vmY}>
-          <VmBadge label="VM B" sub="perfil vGPU" active />
+      <Layout ref={gpuPhaseRef} layout={false} y={24} opacity={0}>
+        <Layout ref={gpuCoreRef} layout={false} y={GPU.chipY}>
+          <Box width={GPU.chipW} height={GPU_CHIP_H} fill="#4A4A4A" />
+          <Rect
+            width={GPU.chipW - 24}
+            height={GPU.computeH - 16}
+            y={gpuChip.computeCenterY}
+            fill="#2D2D2D"
+            stroke={theme.black}
+            lineWidth={2}
+          />
+          <GpuComputeGrid />
+          <GpuSmToVramLinks />
+          <Rect
+            width={GPU.vramInnerW}
+            height={GPU.vramInnerH}
+            y={gpuChip.vramCenterY}
+            fill="#BAE6FD"
+            stroke={theme.black}
+            lineWidth={2}
+          />
+          <Rect
+            ref={gpuVramFillRef}
+            width={gpuVramInitial.width}
+            height={GPU.vramInnerH}
+            x={gpuVramInitial.x}
+            y={gpuChip.vramCenterY}
+            fill={theme.cyan}
+          />
+          <Txt
+            text="VRAM (GB · HBM)"
+            fontFamily={theme.bodyFont}
+            fontSize={15}
+            fontWeight={700}
+            fill={theme.black}
+            textAlign="center"
+            width={GPU.vramInnerW - GPU.vramTextPadX * 2}
+            y={gpuChip.vramCenterY - GPU.vramInnerH / 2 + GPU.vramTextPadY}
+          />
+          <Txt
+            ref={gpuVramUsageRef}
+            text={`${GPU_VRAM_USED_GB} / ${GPU_VRAM_CAPACITY_GB} GB en uso`}
+            fontFamily={theme.bodyFont}
+            fontSize={13}
+            fontWeight={700}
+            fill={theme.black}
+            textAlign="center"
+            width={GPU.vramInnerW - GPU.vramTextPadX * 2}
+            y={gpuChip.vramCenterY + GPU.vramInnerH / 2 - GPU.vramTextPadY}
+          />
+          <Txt
+            text="GPU física"
+            fontFamily={theme.pixelFont}
+            fontSize={22}
+            fill={theme.black}
+            y={-GPU_CHIP_H / 2 - 26}
+          />
         </Layout>
 
         <Line
           points={[
-            [-GPU_LAYOUT.vmX, gpuVmDropStart()],
-            [-GPU_LAYOUT.vmX, gpuVmDropEnd()],
-          ]}
-          stroke={theme.black}
-          lineWidth={2.5}
-          endArrow
-          arrowSize={14}
-        />
-        <Line
-          points={[
-            [GPU_LAYOUT.vmX, gpuVmDropStart()],
-            [GPU_LAYOUT.vmX, gpuVmDropEnd()],
-          ]}
-          stroke={theme.black}
-          lineWidth={2.5}
-          endArrow
-          arrowSize={14}
-        />
-        <Line
-          points={[
-            [-GPU_LAYOUT.vmX, gpuVmDropEnd()],
-            [GPU_LAYOUT.vmX, gpuVmDropEnd()],
+            [gpuPcie.left, gpuPcie.y],
+            [gpuPcie.right, gpuPcie.y],
           ]}
           stroke={theme.black}
           lineWidth={2}
+          lineDash={[10, 8]}
+          lineCap="round"
+        />
+        <Txt
+          text="PCIe · lento"
+          fontFamily={theme.bodyFont}
+          fontSize={15}
+          fontWeight={700}
+          fill={theme.magenta}
+          x={gpuPcie.midX}
+          y={gpuPcie.y - 22}
         />
 
-        <Layout ref={gpuHypervisorRef} layout={false} y={GPU_LAYOUT.hypY}>
+        <Layout ref={gpuRamRef} layout={false} x={gpuRamCenterX()} y={GPU.chipY}>
+          <Box width={GPU.ramW} height={GPU.ramH} fill={CPU_HOST_GRAY} />
           <Rect
-            width={720}
-            height={GPU_LAYOUT.hypH}
-            fill={theme.black}
-            x={5}
-            y={5}
-          />
-          <Rect
-            width={720}
-            height={GPU_LAYOUT.hypH}
-            fill={theme.cyan}
+            width={GPU.ramW - 32}
+            height={58}
+            fill={theme.white}
             stroke={theme.black}
-            lineWidth={theme.border}
+            lineWidth={2}
+            y={2}
           />
           <Txt
-            text="Hypervisor · vGPU Manager"
+            text={GPU.hostRamGbLabel}
             fontFamily={theme.bodyFont}
             fontSize={18}
             fontWeight={700}
             fill={theme.black}
+            y={2}
+          />
+          <Txt
+            text="RAM del host"
+            fontFamily={theme.pixelFont}
+            fontSize={20}
+            fill={theme.black}
+            y={GPU.ramH / 2 + 26}
           />
         </Layout>
 
         <Line
           points={[
-            [0, gpuHypLineStart()],
-            [0, GPU_LAYOUT.socketCaptionY - 16],
+            [gpuVmBus.left, gpuVmBus.busY],
+            [gpuVmBus.right, gpuVmBus.busY],
           ]}
           stroke={theme.black}
-          lineWidth={2.5}
-          endArrow
-          arrowSize={14}
+          lineWidth={2}
+          lineDash={[10, 8]}
+          lineCap="round"
         />
 
-        <Txt
-          text="GPU"
-          fontFamily={theme.pixelFont}
-          fontSize={20}
-          fill={theme.black}
-          x={GPU_LAYOUT.dieX}
-          y={GPU_LAYOUT.socketCaptionY}
-        />
-        <Txt
-          text="RAM · PCIe"
-          fontFamily={theme.pixelFont}
-          fontSize={20}
-          fill={theme.black}
-          x={GPU_LAYOUT.ramX}
-          y={GPU_LAYOUT.socketCaptionY}
-        />
+        <Layout layout={false} key="gpu-vm1-plug">
+          <Spline
+            ref={gpuPlugBaseRef}
+            points={gpuVm1PlugPts}
+            smoothness={0.38}
+            stroke={GPU_VM1_PLUG_COLOR}
+            lineWidth={4}
+            lineCap="round"
+            end={1}
+          />
+          <Spline
+            ref={gpuPlugFlowRef}
+            points={gpuVm1PlugPts}
+            smoothness={0.38}
+            stroke={GPU_VM1_PLUG_COLOR}
+            lineWidth={12}
+            lineCap="round"
+            lineDash={[16, 24]}
+            lineDashOffset={0}
+            opacity={0.6}
+            end={1}
+          />
+        </Layout>
 
-        <Layout
-          ref={gpuCoreRef}
-          layout={false}
-          x={GPU_LAYOUT.dieX}
-          y={GPU_LAYOUT.siliconRowY}
-        >
-          <Rect
-            width={480}
-            height={GPU_LAYOUT.siliconBoxH}
-            fill={theme.black}
-            x={6}
-            y={6}
+        <Layout layout={false} key="gpu-vm2-plug">
+          <Spline
+            ref={gpuPlug2BaseRef}
+            points={gpuVm2PlugPts}
+            smoothness={0.38}
+            stroke={GPU_VM2_PLUG_COLOR}
+            lineWidth={4}
+            lineCap="round"
+            end={0}
           />
-          <Rect
-            width={480}
-            height={GPU_LAYOUT.siliconBoxH}
-            fill="#5A5A5A"
-            stroke={theme.black}
-            lineWidth={theme.border}
+          <Spline
+            ref={gpuPlug2FlowRef}
+            points={gpuVm2PlugPts}
+            smoothness={0.38}
+            stroke={GPU_VM2_PLUG_COLOR}
+            lineWidth={12}
+            lineCap="round"
+            lineDash={[16, 24]}
+            lineDashOffset={0}
+            opacity={0.6}
+            end={0}
           />
-          <Rect
-            width={420}
-            height={40}
-            fill={theme.cyan}
+        </Layout>
+
+        {gpuVm1Joint ? (
+          <Circle
+            ref={gpuBusJointRef}
+            x={gpuVm1Joint.position[0]}
+            y={gpuVm1Joint.position[1]}
+            width={14}
+            height={14}
+            fill={GPU_VM1_PLUG_COLOR}
             stroke={theme.black}
             lineWidth={2}
-            y={-44}
-            opacity={0.95}
           />
-          <Txt
-            text="VRAM del tenant (perfil)"
-            fontFamily={theme.bodyFont}
-            fontSize={15}
-            fontWeight={700}
-            fill={theme.black}
-            y={-44}
+        ) : null}
+
+        {gpuVm2Joint ? (
+          <Circle
+            ref={gpuBusJoint2Ref}
+            x={gpuVm2Joint.position[0]}
+            y={gpuVm2Joint.position[1]}
+            width={14}
+            height={14}
+            fill={GPU_VM2_PLUG_COLOR}
+            stroke={theme.black}
+            lineWidth={2}
+            opacity={0}
           />
+        ) : null}
+
+        {[0, 1].map(i => (
+          <Layout
+            key={`gpu-xfer-pkt-${i}`}
+            ref={gpuTransferPacketRefs[i]}
+            layout={false}
+            zIndex={50}
+            opacity={0}
+          >
+            <Rect
+              width={i === 0 ? 92 : 88}
+              height={40}
+              fill={i === 0 ? theme.white : theme.cyan}
+              stroke={theme.black}
+              lineWidth={2}
+            />
+            <Txt
+              ref={gpuTransferPacketLabelRefs[i]}
+              text={i === 0 ? GPU_PACKET_MB_LABEL : GPU_PACKET_GB_LABEL}
+              fontFamily={theme.bodyFont}
+              fontSize={i === 0 ? 15 : 16}
+              fontWeight={700}
+              fill={theme.black}
+            />
+          </Layout>
+        ))}
+
+        <Layout
+          ref={gpuVm1Ref}
+          layout={false}
+          x={-GPU.vmX}
+          y={GPU.vmRowY}
+        >
+          <Rect width={GPU.vmW} height={GPU.vmH} fill={theme.black} x={3} y={3} />
           <Rect
-            width={420}
-            height={30}
+            ref={gpuVm1BodyRef}
+            width={GPU.vmW}
+            height={GPU.vmH}
             fill={theme.yellow}
             stroke={theme.black}
-            lineWidth={2}
-            y={-2}
+            lineWidth={4}
           />
           <Txt
-            text="colas · L2 / estado"
-            fontFamily={theme.bodyFont}
-            fontSize={13}
-            fontWeight={600}
-            fill={theme.black}
-            y={-2}
-          />
-          <Rect
-            width={420}
-            height={36}
-            fill="#333"
-            stroke={theme.black}
-            lineWidth={2}
-            y={38}
-          />
-          <Txt
-            text="SM · cómputo"
-            fontFamily={theme.bodyFont}
-            fontSize={13}
-            fontWeight={600}
-            fill={theme.white}
-            y={38}
-          />
-        </Layout>
-
-        <Layout
-          layout={false}
-          x={GPU_LAYOUT.ramX}
-          y={GPU_LAYOUT.siliconRowY}
-        >
-          <Rect
-            width={480}
-            height={GPU_LAYOUT.siliconBoxH}
-            fill={theme.black}
-            x={4}
-            y={4}
-          />
-          <Rect
-            width={480}
-            height={GPU_LAYOUT.siliconBoxH}
-            fill="#E8E8E8"
-            stroke={theme.black}
-            lineWidth={theme.border}
-          />
-          <Txt
-            text="RAM host"
+            ref={gpuVm1LabelRef}
+            text="vGPU 1"
             fontFamily={theme.pixelFont}
-            fontSize={20}
+            fontSize={24}
             fill={theme.black}
-            y={-36}
+            y={-8}
+          />
+          <Rect
+            ref={gpuVm1PortRef}
+            width={22}
+            height={22}
+            y={-GPU.vmH / 2 + 20}
+            fill={GPU_VM1_PLUG_COLOR}
+            stroke={theme.black}
+            lineWidth={2}
           />
           <Txt
-            text="Evacuar VRAM por PCIe"
-            fontFamily={theme.bodyFont}
-            fontSize={15}
-            fontWeight={600}
-            fill={theme.grey}
-            y={-6}
-          />
-          <Txt
-            text="mucho más lento que HBM"
+            ref={gpuVm1ActiveLabelRef}
+            text="activa"
             fontFamily={theme.bodyFont}
             fontSize={14}
-            fontWeight={600}
-            fill={theme.magenta}
-            y={24}
-          />
-        </Layout>
-
-        <Layout ref={gpuSpillGroupRef} layout={false} opacity={0}>
-          <Line
-            points={[
-              [GPU_LAYOUT.dieX + 40, GPU_LAYOUT.siliconRowY - 30],
-              [GPU_LAYOUT.ramX - 40, GPU_LAYOUT.siliconRowY],
-            ]}
-            stroke={theme.magenta}
-            lineWidth={5}
-            lineCap="round"
-            endArrow
-          />
-          <Txt
-            text="lento vs HBM"
-            fontFamily={theme.bodyFont}
-            fontSize={16}
-            fontWeight={700}
-            fill={theme.magenta}
-            x={0}
-            y={GPU_LAYOUT.siliconRowY - 52}
-          />
-          <Rect
-            ref={gpuSpillChunkRef}
-            width={88}
-            height={40}
-            fill={theme.cyan}
-            stroke={theme.black}
-            lineWidth={2}
-            x={GPU_LAYOUT.dieX + 40}
-            y={GPU_LAYOUT.siliconRowY - 28}
-          />
-          <Txt
-            text="VRAM"
-            fontFamily={theme.bodyFont}
-            fontSize={13}
             fontWeight={700}
             fill={theme.black}
-            x={GPU_LAYOUT.dieX + 40}
-            y={GPU_LAYOUT.siliconRowY - 28}
+            y={16}
           />
         </Layout>
-
-        <Txt
-          ref={gpuFootnoteRef}
-          text="En GPU, cambiar de VM puede mover mucha VRAM"
-          fontFamily={theme.bodyFont}
-          fontSize={18}
-          fontWeight={600}
-          fill={theme.black}
-          y={GPU_LAYOUT.footnoteY}
-          width={880}
-          textAlign="center"
-          opacity={0}
-        />
+        <Layout ref={gpuVm2Ref} layout={false} x={GPU.vmX} y={GPU.vmRowY}>
+          <Rect width={GPU.vmW} height={GPU.vmH} fill={theme.black} x={3} y={3} />
+          <Rect
+            ref={gpuVm2BodyRef}
+            width={GPU.vmW}
+            height={GPU.vmH}
+            fill={theme.white}
+            stroke={theme.black}
+            lineWidth={2}
+            opacity={0.55}
+          />
+          <Txt
+            ref={gpuVm2LabelRef}
+            text="vGPU 2"
+            fontFamily={theme.pixelFont}
+            fontSize={24}
+            fill={theme.black}
+            y={0}
+          />
+          <Rect
+            ref={gpuVm2PortRef}
+            width={22}
+            height={22}
+            y={-GPU.vmH / 2 + 20}
+            fill={GPU_VM2_PLUG_COLOR}
+            stroke={theme.black}
+            lineWidth={2}
+            opacity={0}
+          />
+          <Txt
+            ref={gpuVm2ActiveLabelRef}
+            text="activa"
+            fontFamily={theme.bodyFont}
+            fontSize={14}
+            fontWeight={700}
+            fill={theme.black}
+            y={16}
+            opacity={0}
+          />
+          <Layout
+            ref={gpuVm2TaskRef}
+            layout={false}
+            y={GPU.vmH / 2 + 36}
+            opacity={0}
+          >
+            <Rect
+              width={200}
+              height={56}
+              fill={theme.white}
+              stroke={theme.black}
+              lineWidth={2}
+            />
+            <Txt
+              text="Quiere continuar tarea"
+              fontFamily={theme.bodyFont}
+              fontSize={13}
+              fontWeight={600}
+              fill={theme.black}
+              y={-10}
+            />
+            <Txt
+              text={`${GPU_VRAM_VM2_TASK_GB} GB VRAM`}
+              fontFamily={theme.bodyFont}
+              fontSize={15}
+              fontWeight={700}
+              fill={theme.cyan}
+              y={12}
+            />
+          </Layout>
+        </Layout>
       </Layout>
 
-      <Layout ref={conclusionRef} layout={false} y={-20} opacity={0}>
-        <Rect width={1480} height={300} fill={theme.black} x={6} y={6} />
-        <Rect
-          width={1480}
-          height={300}
-          fill={theme.white}
-          stroke={theme.black}
-          lineWidth={theme.border}
-        />
-        <Txt
-          text="Compartir en el tiempo funciona en CPU"
-          fontFamily={theme.pixelFont}
-          fontSize={30}
-          fill={theme.black}
-          y={-80}
-        />
-        <Txt
-          text="En GPU el cambio de VM cuesta mucho más → por eso existe MIG"
-          fontFamily={theme.bodyFont}
-          fontSize={24}
-          fontWeight={500}
-          fill={theme.black}
-          textAlign="center"
-          width={1300}
-          y={20}
-        />
-      </Layout>
     </Layout>
   );
 }
