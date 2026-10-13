@@ -105,6 +105,43 @@ IDs en pie: `googleGeminiPricing`, `openAiPricingDocs`, `anthropicPricing`, `dee
 
 En la comparación final se cruza con `doe` (consolidar cargas en menos servidores) y `berkeley2024` (escala energética de datacenters).
 
+## Virtualización GPU (IA / datacenter)
+
+| ID | Uso en la charla | Enlace |
+|----|------------------|--------|
+| `nvidiaMigGuide` | MIG: partición física de SM/memoria/ancho de banda; perfiles por GPU; contraste con streams/MPS | https://docs.nvidia.com/datacenter/tesla/mig-user-guide/latest/index.html |
+| `nvidiaVgpuScheduling` | vGPU time-sliced: best effort, equal share, fixed share entre VMs | https://docs.nvidia.com/vgpu/latest/grid-vgpu-user-guide/changing-vgpu-scheduling-policy.html |
+| `ubuntuKvmGpuVirt` | Passthrough VFIO vs mediated devices (vGPU) en KVM/QEMU | https://ubuntu.com/server/docs/how-to/graphics/gpu-virtualization-with-qemu-kvm |
+| `nistHypervisor125a` | Contexto hypervisor/VM (CPU) antes del salto a GPU | https://csrc.nist.gov/pubs/sp/800/125/a/r1/final |
+| `nvidiaMigBlog` | MIG en A100: inferencia concurrente; límites entrenamiento multi-GPU | https://developer.nvidia.com/blog/getting-the-most-out-of-the-a100-gpu-with-multi-instance-gpu/ |
+| `awsEksMig` | Cuándo MIG vs time-slicing; NCCL/P2P; reutilizar GPU post-entrenamiento | https://docs.aws.amazon.com/eks/latest/userguide/device-management-nvidia-mig.html |
+| `thunderComputeGpuTcp` | GPU-over-TCP: CUDA remoto, detach idle, ~10–20 ms reattach | https://www.thundercompute.com/blog/how-thunder-compute-works-gpu-over-tcp |
+
+## Agua y energía (slides finales `ambiente-*`)
+
+| ID | Uso en la charla | Enlace |
+|----|------------------|--------|
+| `berkeley2024` | Electricidad EE. UU.: ~58–60 TWh (2014–16), 76 TWh (2018), 176 TWh (2023) | https://eta-publications.lbl.gov/publications/united-states-data-center-energy-usage-report |
+| `berkeley2026` | Actualización 2025 del informe LBNL (proyecciones; no en gráfica) | https://www.energy.gov/documents/united-states-data-center-energy-usage-report-2025-update |
+| `lbnlDcWater2024` | Agua directa ~21,2 mil M L (2014) → ~66 mil M L (2023); indirecta ~800 mil M L (2023) | https://eta-publications.lbl.gov/publications/united-states-data-center-energy |
+| `leiDcWaterReview2025` | Variabilidad por workload/sitio; no hay ml/prompt universal | https://doi.org/10.1016/j.resconrec.2024.107876 |
+| `liMakingAiLessThirsty` | Origen del mito “botella por prompt” (modelo GPT-3, no medición en vivo) | https://arxiv.org/abs/2304.03271 |
+| `microsoftDatacenterWue` | WUE global 0,30 → 0,27 L/kWh IT (FY24→FY25) | https://datacenters.microsoft.com/sustainability/efficiency/ |
+| `microsoftWaterStewardship2026` | Intensidad histórica ~2,3 → 0,27 L/kWh; agua reciclada en sitios clave | https://blogs.microsoft.com/blog/2026/06/24/inside-microsofts-two-decade-push-to-cut-water-intensity-while-scaling-for-growth/ |
+| `googleDatacenterWater` | Estrés hídrico local, agua reciclada, meta repone > consume (2030) | https://datacenters.google/water/ |
+| `googleGeminiEnvMetrics2025` | Ejemplo medido prompt mediano Gemini Apps (Wh/agua) — no universal | https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini |
+| `garCarbonAwareRouting` | Slide `ambiente-carbon-aware` (después de Microsoft/Google) | https://arxiv.org/abs/2605.11603 |
+
+Gráficas: `src/data/dcWaterTrend.ts`, `src/data/dcEnergyTrend.ts` — solo puntos publicados en LBNL 2024.
+
+## Uso de IA (`uso-ia-*`, después de ambiente)
+
+| ID | Uso en la charla | Enlace |
+|----|------------------|--------|
+| `chiSmallerModel2025` | Elegir modelos más pequeños; a veces no hace falta ML | https://dl.acm.org/doi/10.1145/3706598.3713240 |
+| `llmEnergyAccuracy2025` | Modelos medianos vs gigantes en energía de inferencia | https://dl.acm.org/doi/10.1145/3744255.3811741 |
+| `anthropicPricing` / `openAiPricing` | Referencia de APIs “grandes” (coste por token, no métrica ambiental) | ver `sources.ts` |
+
 ## Notas para el pie de diapositiva
 
 - En proyector, el pie usa gris `#5A5A5A` sobre amarillo.

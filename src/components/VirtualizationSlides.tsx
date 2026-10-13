@@ -1,5 +1,6 @@
-import {Layout, Rect, Txt} from '@motion-canvas/2d';
+import {Layout, Line, Rect, Txt} from '@motion-canvas/2d';
 import type {Reference} from '@motion-canvas/core';
+import {LinuxIcon, WindowsIcon} from './DifferentOsSlide';
 import {theme} from '../theme';
 
 function StackBox({
@@ -39,8 +40,8 @@ function StackBox({
           text={sub}
           fontFamily={theme.bodyFont}
           fontSize={18}
-          fontWeight={500}
-          fill={theme.grey}
+          fontWeight={600}
+          fill={theme.black}
           y={18}
         />
       ) : null}
@@ -48,66 +49,156 @@ function StackBox({
   );
 }
 
-function MiniVm({x, osLabel}: {x: number; osLabel: string}) {
+type VmCardProps = {
+  x: number;
+  vmId: string;
+  osKind: 'windows' | 'linux' | 'legacy';
+  osTitle: string;
+  resources: string;
+  appLabel: string;
+  appFill: string;
+};
+
+function LegacyOsIcon({y = 0}: {y?: number}) {
   return (
-    <Layout layout={false} x={x} y={0}>
-      <Rect width={200} height={220} fill={theme.black} x={4} y={4} />
-      <Rect
-        width={200}
-        height={220}
-        fill={theme.white}
-        stroke={theme.black}
-        lineWidth={3}
-      />
+    <Layout layout={false} y={y}>
+      <Rect width={44} height={44} fill="#6B6B6B" stroke={theme.black} lineWidth={2} />
       <Txt
-        text="VM"
+        text="OS"
         fontFamily={theme.pixelFont}
-        fontSize={22}
-        fill={theme.black}
-        y={-70}
-      />
-      <Rect
-        width={150}
-        height={36}
-        fill={theme.cyan}
-        stroke={theme.black}
-        lineWidth={2}
-        y={-20}
-      />
-      <Txt
-        text="Guest OS"
-        fontFamily={theme.bodyFont}
-        fontSize={16}
-        fontWeight={700}
-        fill={theme.black}
-        y={-20}
-      />
-      <Txt
-        text={osLabel}
-        fontFamily={theme.bodyFont}
-        fontSize={15}
-        fill={theme.grey}
-        y={20}
-      />
-      <Rect
-        width={120}
-        height={32}
-        fill={theme.magenta}
-        stroke={theme.black}
-        lineWidth={2}
-        y={70}
-      />
-      <Txt
-        text="App"
-        fontFamily={theme.bodyFont}
-        fontSize={16}
-        fontWeight={700}
-        fill={theme.black}
-        y={70}
+        fontSize={18}
+        fill={theme.white}
       />
     </Layout>
   );
 }
+
+/** Altura de tarjeta VM (debe coincidir con `vmCardH` en HypervisorVirtualizationSlide). */
+const VM_CARD_H = 240;
+
+/** VM con SO invitado, recursos virtuales y carga de trabajo. */
+function VmCard({
+  x,
+  vmId,
+  osKind,
+  osTitle,
+  resources,
+  appLabel,
+  appFill,
+}: VmCardProps) {
+  const cardW = 220;
+  const cardH = VM_CARD_H;
+  const pad = 12;
+  const topPad = 10;
+  const headerH = 30;
+  const headerY = -cardH / 2 + topPad + headerH / 2;
+  const headerBottom = -cardH / 2 + topPad + headerH;
+  const iconY = headerBottom + 42;
+  return (
+    <Layout layout={false} x={x} y={0}>
+      <Rect width={cardW} height={cardH} fill={theme.black} x={4} y={4} />
+      <Rect
+        width={cardW}
+        height={cardH}
+        fill={theme.white}
+        stroke={theme.black}
+        lineWidth={theme.border}
+      />
+      <Rect
+        width={cardW - pad * 2}
+        height={headerH}
+        fill={theme.yellow}
+        stroke={theme.black}
+        lineWidth={2}
+        y={headerY}
+      />
+      <Txt
+        text={vmId}
+        fontFamily={theme.pixelFont}
+        fontSize={20}
+        fill={theme.black}
+        y={headerY}
+      />
+      {osKind === 'windows' ? (
+        <WindowsIcon y={iconY - 4} scale={1.85} nodeKey={`vm-${vmId}-win`} />
+      ) : osKind === 'linux' ? (
+        <LinuxIcon y={iconY} scale={1.2} nodeKey={`vm-${vmId}-linux`} />
+      ) : (
+        <LegacyOsIcon y={iconY} />
+      )}
+      <Txt
+        text={osTitle}
+        fontFamily={theme.bodyFont}
+        fontSize={15}
+        fontWeight={700}
+        fill={theme.black}
+        y={iconY + 44}
+      />
+      <Rect
+        width={cardW - pad * 2 - 8}
+        height={26}
+        fill="#E8E8E8"
+        stroke={theme.black}
+        lineWidth={2}
+        y={iconY + 72}
+      />
+      <Txt
+        text={resources}
+        fontFamily={theme.bodyFont}
+        fontSize={14}
+        fontWeight={600}
+        fill={theme.black}
+        y={iconY + 72}
+      />
+      <Rect
+        width={cardW - pad * 2 - 8}
+        height={36}
+        fill={appFill}
+        stroke={theme.black}
+        lineWidth={2}
+        y={iconY + 104}
+      />
+      <Txt
+        text={appLabel}
+        fontFamily={theme.bodyFont}
+        fontSize={16}
+        fontWeight={700}
+        fill={theme.black}
+        y={iconY + 104}
+      />
+    </Layout>
+  );
+}
+
+const HYPERVISOR_VMS: readonly VmCardProps[] = [
+  {
+    x: -250,
+    vmId: 'VM-1',
+    osKind: 'windows',
+    osTitle: 'Windows Server',
+    resources: '4 vCPU · 16 GB RAM',
+    appLabel: 'SQL + .NET',
+    appFill: theme.cyan,
+  },
+  {
+    x: 0,
+    vmId: 'VM-2',
+    osKind: 'linux',
+    osTitle: 'Ubuntu Server',
+    resources: '8 vCPU · 32 GB RAM',
+    appLabel: 'API Node',
+    appFill: theme.magenta,
+  },
+  {
+    x: 250,
+    vmId: 'VM-3',
+    osKind: 'legacy',
+    osTitle: 'RHEL (legacy)',
+    resources: '2 vCPU · 8 GB RAM',
+    appLabel: 'ERP Java',
+    appFill: '#FFB900',
+  },
+];
 
 type HypervisorSlideProps = {
   typeNoteRef?: Reference<Txt>;
@@ -119,6 +210,15 @@ export function HypervisorVirtualizationSlide({
   typeNoteRef,
   vmRowRef,
 }: HypervisorSlideProps) {
+  const hostW = 960;
+  const hypervisorY = -125;
+  const hypervisorH = 58;
+  const vmCardH = VM_CARD_H;
+  const hypervisorBottom = hypervisorY + hypervisorH / 2;
+  const vmRowY = hypervisorBottom + 28 + vmCardH / 2;
+  const vmTop = vmRowY - vmCardH / 2;
+  const vmSpanX = 250;
+
   return (
     <Layout layout={false} width={'100%'} height={'100%'}>
       <Txt
@@ -131,7 +231,7 @@ export function HypervisorVirtualizationSlide({
         y={-380}
       />
       <Txt
-        text="Un hypervisor reparte CPU, RAM y red · cada VM lleva su propio sistema operativo"
+        text="Un host físico · varias máquinas virtuales · cada una con su propio SO"
         fontFamily={theme.bodyFont}
         fontSize={26}
         fontWeight={500}
@@ -142,277 +242,75 @@ export function HypervisorVirtualizationSlide({
       />
 
       <StackBox
-        w={720}
-        h={56}
+        w={hostW}
+        h={58}
         fill="#B0B0B0"
-        label="Hardware físico (servidor)"
-        y={-180}
+        label="Servidor físico"
+        sub="16 núcleos / 32 hilos · 128 GB RAM · NIC · almacenamiento compartido"
+        y={-200}
       />
       <StackBox
-        w={720}
-        h={64}
+        w={hostW}
+        h={58}
         fill={theme.cyan}
-        label="Hypervisor"
-        sub="Tipo 1: sobre el metal · Tipo 2: sobre un SO anfitrión"
-        y={-95}
+        label="Hypervisor (VMM)"
+        sub="Asigna vCPU, memoria y E/S · Tipo 1 en DC (ESXi, Hyper-V, KVM)"
+        y={hypervisorY}
       />
 
-      <Layout ref={vmRowRef} layout={false} y={80} opacity={1}>
-        <MiniVm x={-240} osLabel="Windows / Linux" />
-        <MiniVm x={0} osLabel="Linux" />
-        <MiniVm x={240} osLabel="Otro SO" />
-      </Layout>
-
-      <Txt
-        ref={typeNoteRef}
-        text={
-          'En el datacenter suele usarse Tipo 1 (ESXi, Hyper-V, KVM).\nCada VM cree tener su propia máquina → varios SO en el mismo rack.'
-        }
-        fontFamily={theme.bodyFont}
-        fontSize={22}
-        fontWeight={600}
-        fill={theme.black}
-        textAlign="center"
-        lineHeight={34}
-        x={0}
-        y={280}
-        opacity={1}
-      />
-    </Layout>
-  );
-}
-
-function MiniContainer({x, name}: {x: number; name: string}) {
-  return (
-    <Layout layout={false} x={x} y={0}>
-      <Rect width={160} height={140} fill={theme.black} x={3} y={3} />
-      <Rect
-        width={160}
-        height={140}
-        fill={theme.yellow}
+      <Line
+        points={[
+          [-vmSpanX, hypervisorBottom],
+          [vmSpanX, hypervisorBottom],
+        ]}
         stroke={theme.black}
-        lineWidth={3}
-      />
-      <Txt
-        text={name}
-        fontFamily={theme.bodyFont}
-        fontSize={17}
-        fontWeight={700}
-        fill={theme.black}
-        y={-30}
-      />
-      <Txt
-        text="proceso aislado"
-        fontFamily={theme.bodyFont}
-        fontSize={14}
-        fill={theme.grey}
-        y={10}
-      />
-      <Txt
-        text="imagen"
-        fontFamily={theme.bodyFont}
-        fontSize={14}
-        fontWeight={600}
-        fill={theme.black}
-        y={45}
-      />
-    </Layout>
-  );
-}
-
-type ContainerSlideProps = {
-  dockerRef?: Reference<Layout>;
-  noteRef?: Reference<Txt>;
-};
-
-/** Contenedores: kernel compartido; Docker como empaquetado habitual. */
-export function ContainersDockerSlide({dockerRef, noteRef}: ContainerSlideProps) {
-  return (
-    <Layout layout={false} width={'100%'} height={'100%'}>
-      <Txt
-        text="Contenedores (y Docker)"
-        fontFamily={theme.pixelFont}
-        fontSize={52}
-        fill={theme.black}
-        textAlign="center"
-        x={0}
-        y={-380}
-      />
-      <Txt
-        text="Virtualización a nivel de aplicación · un solo kernel del SO anfitrión"
-        fontFamily={theme.bodyFont}
-        fontSize={26}
-        fontWeight={500}
-        fill={theme.black}
-        textAlign="center"
-        x={0}
-        y={-315}
+        lineWidth={2}
+        lineCap="round"
       />
 
-      <StackBox
-        w={680}
-        h={52}
-        fill="#B0B0B0"
-        label="Servidor · SO anfitrión (Linux / Windows)"
-        y={-170}
-      />
-      <Layout ref={dockerRef} layout={false} y={-70} opacity={1}>
-        <StackBox
-          w={680}
-          h={48}
-          fill={theme.cyan}
-          label="Motor de contenedores (p. ej. Docker Engine)"
-          sub="crea, ejecuta y aísla contenedores"
-        />
-      </Layout>
-
-      <Layout layout={false} y={100}>
-        <MiniContainer x={-270} name="API" />
-        <MiniContainer x={-90} name="Worker" />
-        <MiniContainer x={90} name="DB client" />
-        <MiniContainer x={270} name="Batch" />
-      </Layout>
-
-      <Txt
-        ref={noteRef}
-        text={
-          'Imagen = app + dependencias empaquetadas · contenedor = instancia en ejecución.\nMismo kernel → arranque rápido y menos RAM que muchas VMs completas.'
-        }
-        fontFamily={theme.bodyFont}
-        fontSize={22}
-        fontWeight={600}
-        fill={theme.black}
-        textAlign="center"
-        lineHeight={34}
-        x={0}
-        y={290}
-        opacity={1}
-      />
-    </Layout>
-  );
-}
-
-/** VM vs contenedor + por qué importa para escala y energía. */
-export function VirtualizationCompareSlide() {
-  const rows = [
-    {
-      label: 'Qué virtualiza',
-      vm: 'Hardware → SO invitado + apps',
-      ctr: 'App empaquetada sobre kernel compartido',
-    },
-    {
-      label: 'Aislamiento',
-      vm: 'Fuerte (SO completo por VM)',
-      ctr: 'Proceso + namespaces / cgroups',
-    },
-    {
-      label: 'Cuándo encaja',
-      vm: 'SO distintos, cargas legacy, multi-tenant clásico',
-      ctr: 'Microservicios, CI/CD, escalar réplicas',
-    },
-    {
-      label: 'En el datacenter',
-      vm: 'Consolidar servidores físicos → menos chasis ociosos',
-      ctr: 'Más densidad por host · orquestación (K8s, Swarm)',
-    },
-  ] as const;
-
-  return (
-    <Layout layout={false} width={'100%'} height={'100%'}>
-      <Txt
-        text="VM · contenedor · escala"
-        fontFamily={theme.pixelFont}
-        fontSize={52}
-        fill={theme.black}
-        textAlign="center"
-        x={0}
-        y={-380}
-      />
-      <Txt
-        text="No compiten: se combinan · el objetivo común es usar mejor el hardware"
-        fontFamily={theme.bodyFont}
-        fontSize={26}
-        fontWeight={500}
-        fill={theme.black}
-        textAlign="center"
-        x={0}
-        y={-315}
-      />
-
-      <Layout layout={false} y={-40}>
-        <Rect width={1480} height={420} fill={theme.black} x={6} y={6} />
-        <Rect
-          width={1480}
-          height={420}
-          fill={theme.white}
+      {HYPERVISOR_VMS.map(vm => (
+        <Line
+          key={`link-${vm.vmId}`}
+          points={[
+            [vm.x, hypervisorBottom],
+            [vm.x, vmTop],
+          ]}
           stroke={theme.black}
-          lineWidth={theme.border}
+          lineWidth={2}
+          lineCap="round"
         />
-        <Txt
-          text="VM (hypervisor)"
-          fontFamily={theme.pixelFont}
-          fontSize={24}
-          fill={theme.black}
-          x={-120}
-          y={-170}
-        />
-        <Txt
-          text="Contenedor"
-          fontFamily={theme.pixelFont}
-          fontSize={24}
-          fill={theme.black}
-          x={420}
-          y={-170}
-        />
-        {rows.map((row, i) => (
-          <Layout key={row.label} layout={false} y={-100 + i * 82}>
-            <Rect
-              width={1420}
-              height={68}
-              fill={i % 2 === 0 ? theme.yellow : theme.white}
-              stroke={theme.black}
-              lineWidth={2}
-              opacity={0.95}
-            />
-            <Txt
-              text={row.label}
-              fontFamily={theme.bodyFont}
-              fontSize={20}
-              fontWeight={700}
-              fill={theme.black}
-              x={-620}
-            />
-            <Txt
-              text={row.vm}
-              fontFamily={theme.bodyFont}
-              fontSize={19}
-              fill={theme.black}
-              x={-120}
-              textWrap="pre"
-              width={480}
-            />
-            <Txt
-              text={row.ctr}
-              fontFamily={theme.bodyFont}
-              fontSize={19}
-              fill={theme.black}
-              x={420}
-              textWrap="pre"
-              width={480}
+      ))}
+
+      <Layout ref={vmRowRef} layout={false} y={vmRowY} opacity={1}>
+        {HYPERVISOR_VMS.map(vm => (
+          <Layout key={`vm-${vm.vmId}`} layout={false}>
+            <VmCard
+              x={vm.x}
+              vmId={vm.vmId}
+              osKind={vm.osKind}
+              osTitle={vm.osTitle}
+              resources={vm.resources}
+              appLabel={vm.appLabel}
+              appFill={vm.appFill}
             />
           </Layout>
         ))}
       </Layout>
 
       <Txt
-        text="Menos servidores subutilizados → menos energía de soporte (PUE) por unidad de trabajo útil"
+        ref={typeNoteRef}
+        text={
+          'Cada VM ve hardware virtual propio: kernel invitado, drivers y apps aislados.\nConsolidar cargas en un rack → menos servidores ociosos (misma idea que DOE / PUE).'
+        }
         fontFamily={theme.bodyFont}
-        fontSize={24}
-        fontWeight={700}
+        fontSize={22}
+        fontWeight={600}
         fill={theme.black}
         textAlign="center"
+        lineHeight={34}
         x={0}
-        y={320}
+        y={300}
+        opacity={1}
       />
     </Layout>
   );

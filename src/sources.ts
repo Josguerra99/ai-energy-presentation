@@ -186,6 +186,86 @@ export const sources: Record<string, SourceRef> = {
     short: 'Docker Docs, containers & Docker Engine overview',
     url: 'https://docs.docker.com/get-started/docker-overview/',
   },
+  nvidiaMigGuide: {
+    id: 'nvidiaMigGuide',
+    short: 'NVIDIA, Multi-Instance GPU (MIG) user guide',
+    url: 'https://docs.nvidia.com/datacenter/tesla/mig-user-guide/latest/index.html',
+  },
+  nvidiaVgpuScheduling: {
+    id: 'nvidiaVgpuScheduling',
+    short: 'NVIDIA vGPU docs, time-sliced scheduling policies',
+    url: 'https://docs.nvidia.com/vgpu/latest/grid-vgpu-user-guide/changing-vgpu-scheduling-policy.html',
+  },
+  ubuntuKvmGpuVirt: {
+    id: 'ubuntuKvmGpuVirt',
+    short: 'Ubuntu Server, GPU virtualization with QEMU/KVM',
+    url: 'https://ubuntu.com/server/docs/how-to/graphics/gpu-virtualization-with-qemu-kvm',
+  },
+  nvidiaMigBlog: {
+    id: 'nvidiaMigBlog',
+    short: 'NVIDIA blog, A100 MIG — inference multi-tenant & training limits',
+    url: 'https://developer.nvidia.com/blog/getting-the-most-out-of-the-a100-gpu-with-multi-instance-gpu/',
+  },
+  awsEksMig: {
+    id: 'awsEksMig',
+    short: 'AWS EKS, when to use NVIDIA MIG vs time-slicing',
+    url: 'https://docs.aws.amazon.com/eks/latest/userguide/device-management-nvidia-mig.html',
+  },
+  thunderComputeGpuTcp: {
+    id: 'thunderComputeGpuTcp',
+    short: 'Thunder Compute, how GPU-over-TCP works',
+    url: 'https://www.thundercompute.com/blog/how-thunder-compute-works-gpu-over-tcp',
+  },
+  lbnlDcWater2024: {
+    id: 'lbnlDcWater2024',
+    short: 'LBNL 2024 DC report — direct/indirect water (EE. UU.)',
+    url: 'https://eta-publications.lbl.gov/publications/united-states-data-center-energy',
+  },
+  leiDcWaterReview2025: {
+    id: 'leiDcWaterReview2025',
+    short: 'Lei et al., water use of data center workloads (2025)',
+    url: 'https://doi.org/10.1016/j.resconrec.2024.107876',
+  },
+  liMakingAiLessThirsty: {
+    id: 'liMakingAiLessThirsty',
+    short: 'Li et al., Making AI Less Thirsty (GPT-3 water model)',
+    url: 'https://arxiv.org/abs/2304.03271',
+  },
+  microsoftDatacenterWue: {
+    id: 'microsoftDatacenterWue',
+    short: 'Microsoft datacenters — PUE/WUE (FY24–FY25)',
+    url: 'https://datacenters.microsoft.com/sustainability/efficiency/',
+  },
+  microsoftWaterStewardship2026: {
+    id: 'microsoftWaterStewardship2026',
+    short: 'Microsoft blog — water intensity & replenishment (FY25)',
+    url: 'https://blogs.microsoft.com/blog/2026/06/24/inside-microsofts-two-decade-push-to-cut-water-intensity-while-scaling-for-growth/',
+  },
+  googleDatacenterWater: {
+    id: 'googleDatacenterWater',
+    short: 'Google — responsible water at data centers',
+    url: 'https://datacenters.google/water/',
+  },
+  googleGeminiEnvMetrics2025: {
+    id: 'googleGeminiEnvMetrics2025',
+    short: 'Google Cloud — Gemini Apps median env. metrics (May 2025)',
+    url: 'https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini',
+  },
+  chiSmallerModel2025: {
+    id: 'chiSmallerModel2025',
+    short: 'CHI 2025, elegir modelos más pequeños y sostenibilidad',
+    url: 'https://dl.acm.org/doi/10.1145/3706598.3713240',
+  },
+  llmEnergyAccuracy2025: {
+    id: 'llmEnergyAccuracy2025',
+    short: 'ACM, inferencia LLM — trade-off energía vs precisión',
+    url: 'https://dl.acm.org/doi/10.1145/3744255.3811741',
+  },
+  garCarbonAwareRouting: {
+    id: 'garCarbonAwareRouting',
+    short: 'GAR, routing carbon-aware para inferencia LLM (arXiv)',
+    url: 'https://arxiv.org/abs/2605.11603',
+  },
 };
 
 export function formatSourceLine(ids: string[]): string {

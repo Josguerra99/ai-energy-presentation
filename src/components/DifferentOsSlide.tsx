@@ -5,7 +5,18 @@ import {theme} from '../theme';
 const PX = 10;
 
 /** Logo Windows clásico 2×2 (pixel). */
-function WindowsIcon({x = 0, y = 0, scale = 1}: {x?: number; y?: number; scale?: number}) {
+export function WindowsIcon({
+  x = 0,
+  y = 0,
+  scale = 1,
+  nodeKey = 'windows-icon',
+}: {
+  x?: number;
+  y?: number;
+  scale?: number;
+  /** Prefijo único en el grafo de escena (Motion Canvas exige keys globales). */
+  nodeKey?: string;
+}) {
   const s = PX * scale;
   const gap = 2 * scale;
   const colors = ['#F25022', '#7FBA00', '#00A4EF', '#FFB900'] as const;
@@ -20,7 +31,7 @@ function WindowsIcon({x = 0, y = 0, scale = 1}: {x?: number; y?: number; scale?:
     <Layout layout={false} x={x} y={y}>
       {colors.map((fill, i) => (
         <Rect
-          key={`w-${i}`}
+          key={`${nodeKey}-w-${i}`}
           width={s}
           height={s}
           fill={fill}
@@ -38,7 +49,17 @@ function WindowsIcon({x = 0, y = 0, scale = 1}: {x?: number; y?: number; scale?:
  * Tux simplificado en pixel art (negro / blanco / amarillo).
  * Grid 7×8 de celdas.
  */
-function LinuxIcon({x = 0, y = 0, scale = 1}: {x?: number; y?: number; scale?: number}) {
+export function LinuxIcon({
+  x = 0,
+  y = 0,
+  scale = 1,
+  nodeKey = 'linux-icon',
+}: {
+  x?: number;
+  y?: number;
+  scale?: number;
+  nodeKey?: string;
+}) {
   // 0 vacío · 1 negro · 2 blanco · 3 amarillo pico · 4 naranja pies
   const grid: number[][] = [
     [0, 0, 1, 1, 1, 0, 0],
@@ -63,7 +84,7 @@ function LinuxIcon({x = 0, y = 0, scale = 1}: {x?: number; y?: number; scale?: n
         row.map((v, rx) =>
           v === 0 ? null : (
             <Rect
-              key={`l-${rx}-${ry}`}
+              key={`${nodeKey}-l-${ry}-${rx}-${v}`}
               width={cell}
               height={cell}
               fill={fills[v]}
@@ -103,9 +124,9 @@ function OsCard({
         lineWidth={theme.border}
       />
       {kind === 'windows' ? (
-        <WindowsIcon y={-90} scale={3.2} />
+        <WindowsIcon y={-90} scale={3.2} nodeKey={`os-${kind}-${x}`} />
       ) : (
-        <LinuxIcon y={-90} scale={2.2} />
+        <LinuxIcon y={-90} scale={2.2} nodeKey={`os-${kind}-${x}`} />
       )}
       <Txt
         text={title}

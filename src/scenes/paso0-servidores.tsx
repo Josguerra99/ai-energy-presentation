@@ -1,11 +1,14 @@
-import {Circle, Img, Latex, Layout, Line, Rect, Txt, makeScene2D} from '@motion-canvas/2d';
+import {Circle, Img, Latex, Layout, Line, Rect, Spline, Txt, makeScene2D} from '@motion-canvas/2d';
 import {
   all,
   beginSlide,
+  chain,
   createRef,
   easeInOutCubic,
   easeOutBack,
   easeOutCubic,
+  linear,
+  loopFor,
   waitFor,
 } from '@motion-canvas/core';
 import {loadPresentationFonts} from '../fonts';
@@ -28,10 +31,58 @@ import {
 import {ConsolidateWorkloads, CONSOL_APPS, CONSOL_END_X, CONSOL_END_Y} from '../components/ConsolidateWorkloads';
 import {DifferentOsSlide} from '../components/DifferentOsSlide';
 import {
-  ContainersDockerSlide,
-  HypervisorVirtualizationSlide,
-  VirtualizationCompareSlide,
-} from '../components/VirtualizationSlides';
+  GpuIdleAndRemoteAccessSlide,
+  MigUseCaseExampleSlide,
+  MigVirtualizationSlide,
+} from '../components/GpuVirtualizationSlides';
+import {
+  CPU_PLUG_COUNT,
+  CPU_PLUG_FLOW_DASH_CYCLE,
+  CPU_PLUG_FLOW_DURATION_SEC,
+  CPU_PLUG_FLOW_RECONNECT_SEC,
+  CPU_PLUG_FLOW_STEP_SEC,
+  CPU_CONTEXT_PACKET_COUNT,
+  CPU_CONTEXT_PACKET_PCPUS,
+  CPU_INITIAL_PLUG_COUNT,
+  CPU_PREEMPT_PLUG_INDICES,
+  CPU_SWAP_PLUG_GREEN,
+  CPU_SWAP_PLUG_ORANGE,
+  CPU_POST_SWAP_FLOW_PLUGS,
+  CPU_POST_RESTORE_FLOW_PLUGS,
+  CPU_TEAL_PLUG_INDEX,
+  CPU_TEAL_SAVE_PCPU,
+  CPU_TEAL_VCPU_COLOR,
+  CPU_VM_B_CYAN_PLUG_INDEX,
+  CPU_VM_B_LIGHT_CYAN,
+  CPU_PLUG_FLOW_LAYER_OPACITY,
+  CPU_PLUG_FLOW_LINE_WIDTH,
+  cpuPlugFlowLineDash,
+  cpuContextPacketPositions,
+  cpuContextPacketPositionsFromRam,
+  cpuPlugBusJoint,
+  cpuPlugRoute,
+  VgpuContextSwitchSlide,
+} from '../components/VgpuContextSwitchSlide';
+import {HypervisorVirtualizationSlide} from '../components/VirtualizationSlides';
+import {
+  EnergyDcIntroSlide,
+  EnergyTrendChart,
+  HowToExplainSlide,
+  WaterDcIntroSlide,
+  WaterDcSourcesSlide,
+  WaterDcWasteSlide,
+  WaterHyperscalerSlide,
+  WaterTrendChart,
+} from '../components/EnvironmentalImpactSlides';
+import {dcEnergyTrend} from '../data/dcEnergyTrend';
+import {dcWaterTrend} from '../data/dcWaterTrend';
+import {
+  CarbonAwareWorkshopBridgeSlide,
+  HeavyLlmWhenSlide,
+  LighterModelsSlide,
+  RightToolIntroSlide,
+  SkipGenerativeAiSlide,
+} from '../components/SustainableAiUseSlides';
 import {
   AiBehindTheScenes,
   MAGIC_IN_X,
@@ -107,6 +158,8 @@ import {slide, theme} from '../theme';
 /** Distancia del “scroll” entre diapositivas (px). */
 const SCROLL_Y = 980;
 const SCROLL_DURATION = 0.7;
+/** Relleno de timeline entre beats vGPU (misma diapositiva; no usar en bloque ambiente). */
+const VGPU_TIMELINE_PAD = 0.5;
 const CONTENT_H =
   slide.height - slide.paddingY * 2 - slide.footerHeight - 20;
 const CONTENT_W = slide.width - slide.paddingX * 2;
@@ -1824,7 +1877,7 @@ export default makeScene2D(function* (view) {
   yield* osPunch().opacity(1, 0.5);
   yield* beginSlide('os-conflicto-virt');
 
-  // —— Virtualización: hypervisor · contenedores · comparación ——
+  // —— Virtualización: hypervisor ——
   yield* scrollTo(panel => {
     panel.add(
       <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
@@ -1835,23 +1888,542 @@ export default makeScene2D(function* (view) {
   setFooter(['nistHypervisor125a', 'nistVmGlossary']);
   yield* beginSlide('virt-hypervisor');
 
+  // —— Virtualización GPU: vGPU · MIG · caso · ociosidad / remoto ——
+  const vgpuTitle = createRef<Txt>();
+  const vgpuSubtitle = createRef<Txt>();
+  const vgpuCpuPhase = createRef<Layout>();
+  const vgpuGpuPhase = createRef<Layout>();
+  const vgpuConclusion = createRef<Layout>();
+  const vgpuCpuVmA = createRef<Layout>();
+  const vgpuCpuVmB = createRef<Layout>();
+  const vgpuCpuHypervisor = createRef<Layout>();
+  const vgpuCpuDie = createRef<Layout>();
+  const vgpuCpuRam = createRef<Layout>();
+  const vgpuCpuPlugBaseRefs = Array.from({length: CPU_PLUG_COUNT}, () =>
+    createRef<Spline>(),
+  );
+  const vgpuCpuPlugFlowRefs = Array.from({length: CPU_PLUG_COUNT}, () =>
+    createRef<Spline>(),
+  );
+  const vgpuCpuPcpuFillRefs = Array.from({length: 4}, () => createRef<Rect>());
+  const vgpuCpuBusJointRefs = Array.from({length: CPU_PLUG_COUNT}, () =>
+    createRef<Circle>(),
+  );
+  const vgpuCpuContextPackets = Array.from(
+    {length: CPU_CONTEXT_PACKET_COUNT},
+    () => createRef<Rect>(),
+  );
+  const vgpuGpuVmA = createRef<Layout>();
+  const vgpuGpuVmB = createRef<Layout>();
+  const vgpuGpuHypervisor = createRef<Layout>();
+  const vgpuGpuCore = createRef<Layout>();
+  const vgpuSpill = createRef<Layout>();
+  const vgpuSpillChunk = createRef<Rect>();
+  const vgpuGpuFoot = createRef<Txt>();
   yield* scrollTo(panel => {
     panel.add(
       <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
-        <ContainersDockerSlide />
+        <VgpuContextSwitchSlide
+          titleRef={vgpuTitle}
+          subtitleRef={vgpuSubtitle}
+          cpuPhaseRef={vgpuCpuPhase}
+          gpuPhaseRef={vgpuGpuPhase}
+          conclusionRef={vgpuConclusion}
+          cpuVmARef={vgpuCpuVmA}
+          cpuVmBRef={vgpuCpuVmB}
+          cpuHypervisorRef={vgpuCpuHypervisor}
+          cpuDieRef={vgpuCpuDie}
+          cpuRamRef={vgpuCpuRam}
+          cpuPlugBaseRefs={vgpuCpuPlugBaseRefs}
+          cpuPlugFlowRefs={vgpuCpuPlugFlowRefs}
+          cpuPcpuFillRefs={vgpuCpuPcpuFillRefs}
+          cpuBusJointRefs={vgpuCpuBusJointRefs}
+          cpuContextPacketRefs={vgpuCpuContextPackets}
+          gpuVmARef={vgpuGpuVmA}
+          gpuVmBRef={vgpuGpuVmB}
+          gpuHypervisorRef={vgpuGpuHypervisor}
+          gpuCoreRef={vgpuGpuCore}
+          gpuSpillGroupRef={vgpuSpill}
+          gpuSpillChunkRef={vgpuSpillChunk}
+          gpuFootnoteRef={vgpuGpuFoot}
+        />
       </Layout>,
     );
   });
-  setFooter(['nistContainers190', 'dockerOverview']);
-  yield* beginSlide('virt-contenedores-docker');
+  setFooter(['nvidiaVgpuScheduling', 'ubuntuKvmGpuVirt', 'nistHypervisor125a']);
+
+  for (const ref of vgpuCpuPlugFlowRefs) {
+    ref().lineDashOffset(0);
+  }
+
+  yield* beginSlide('virt-gpu-cpu-titulo');
+
+  yield* loopFor(CPU_PLUG_FLOW_DURATION_SEC, function* () {
+    yield* all(
+      ...vgpuCpuPlugFlowRefs
+        .slice(0, CPU_INITIAL_PLUG_COUNT)
+        .map(ref =>
+          ref().lineDashOffset(
+            -CPU_PLUG_FLOW_DASH_CYCLE,
+            CPU_PLUG_FLOW_STEP_SEC,
+            linear,
+          ),
+        ),
+    );
+    for (let i = 0; i < CPU_INITIAL_PLUG_COUNT; i++) {
+      vgpuCpuPlugFlowRefs[i]().lineDashOffset(0);
+    }
+  });
+
+  yield* beginSlide('virt-gpu-cpu-preempt');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  yield* vgpuCpuHypervisor().scale(1.12, 0.18, easeOutBack);
+  yield* vgpuCpuHypervisor().scale(1, 0.16, easeOutCubic);
+
+  const pktPurple = cpuContextPacketPositions(CPU_CONTEXT_PACKET_PCPUS[0], 0);
+  const pktB1 = cpuContextPacketPositions(CPU_CONTEXT_PACKET_PCPUS[1], 1);
+  vgpuCpuContextPackets[0]().x(pktPurple.from[0]);
+  vgpuCpuContextPackets[0]().y(pktPurple.from[1]);
+  vgpuCpuContextPackets[1]().x(pktB1.from[0]);
+  vgpuCpuContextPackets[1]().y(pktB1.from[1]);
+  vgpuCpuContextPackets[0]().opacity(1);
+  vgpuCpuContextPackets[1]().opacity(1);
+  yield* all(
+    chain(
+      waitFor(0),
+      all(
+        vgpuCpuContextPackets[0]().x(pktPurple.to[0], 0.55, easeInOutCubic),
+        vgpuCpuContextPackets[0]().y(pktPurple.to[1], 0.55, easeInOutCubic),
+      ),
+    ),
+    chain(
+      waitFor(0.12),
+      all(
+        vgpuCpuContextPackets[1]().x(pktB1.to[0], 0.55, easeInOutCubic),
+        vgpuCpuContextPackets[1]().y(pktB1.to[1], 0.55, easeInOutCubic),
+      ),
+    ),
+    vgpuCpuRam().scale(1.07, 0.22, easeOutBack),
+  );
+  yield* all(
+    vgpuCpuContextPackets[0]().opacity(0, 0.15, easeOutCubic),
+    vgpuCpuContextPackets[1]().opacity(0, 0.15, easeOutCubic),
+    vgpuCpuRam().scale(1, 0.14, easeOutCubic),
+  );
+  vgpuCpuContextPackets[0]().x(pktPurple.from[0]);
+  vgpuCpuContextPackets[0]().y(pktPurple.from[1]);
+  vgpuCpuContextPackets[1]().x(pktB1.from[0]);
+  vgpuCpuContextPackets[1]().y(pktB1.from[1]);
+
+  yield* beginSlide('virt-gpu-cpu-schedule');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  yield* all(
+    ...CPU_PREEMPT_PLUG_INDICES.map(i =>
+      vgpuCpuPlugBaseRefs[i]().end(0, 0.3, easeOutCubic),
+    ),
+    ...CPU_PREEMPT_PLUG_INDICES.map(i =>
+      vgpuCpuPlugFlowRefs[i]().end(0, 0.3, easeOutCubic),
+    ),
+    ...CPU_PREEMPT_PLUG_INDICES.map(i =>
+      vgpuCpuPlugFlowRefs[i]().opacity(0, 0.18, easeOutCubic),
+    ),
+    vgpuCpuPcpuFillRefs[2]().fill('#FFFFFF', 0.22, easeOutCubic),
+    vgpuCpuPcpuFillRefs[3]().fill('#FFFFFF', 0.22, easeOutCubic),
+    vgpuCpuBusJointRefs[2]().opacity(0, 0.18, easeOutCubic),
+    vgpuCpuBusJointRefs[3]().opacity(0, 0.18, easeOutCubic),
+  );
+
+  yield* beginSlide('virt-gpu-cpu-cola');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  const orangePts = cpuPlugRoute('a', 3, 2);
+  const greenPts = cpuPlugRoute('b', 0, 3);
+  vgpuCpuPlugBaseRefs[CPU_SWAP_PLUG_ORANGE]().points(orangePts);
+  vgpuCpuPlugFlowRefs[CPU_SWAP_PLUG_ORANGE]().points(orangePts);
+  vgpuCpuPlugBaseRefs[CPU_SWAP_PLUG_GREEN]().points(greenPts);
+  vgpuCpuPlugFlowRefs[CPU_SWAP_PLUG_GREEN]().points(greenPts);
+
+  const flowDash = cpuPlugFlowLineDash();
+  for (const i of [CPU_SWAP_PLUG_ORANGE, CPU_SWAP_PLUG_GREEN] as const) {
+    vgpuCpuPlugFlowRefs[i]().lineDash(flowDash);
+    vgpuCpuPlugFlowRefs[i]().lineWidth(CPU_PLUG_FLOW_LINE_WIDTH);
+    vgpuCpuPlugFlowRefs[i]().opacity(CPU_PLUG_FLOW_LAYER_OPACITY);
+    vgpuCpuPlugFlowRefs[i]().lineDashOffset(0);
+  }
+
+  yield* all(
+    vgpuCpuPlugBaseRefs[CPU_SWAP_PLUG_ORANGE]().end(1, 0.34, easeOutCubic),
+    vgpuCpuPlugFlowRefs[CPU_SWAP_PLUG_ORANGE]().end(1, 0.34, easeOutCubic),
+    vgpuCpuPlugBaseRefs[CPU_SWAP_PLUG_GREEN]().end(1, 0.34, easeOutCubic),
+    vgpuCpuPlugFlowRefs[CPU_SWAP_PLUG_GREEN]().end(1, 0.34, easeOutCubic),
+    vgpuCpuPcpuFillRefs[2]().fill('#FF6B35', 0.32, easeOutCubic),
+    vgpuCpuPcpuFillRefs[3]().fill('#006B7A', 0.32, easeOutCubic),
+    vgpuCpuBusJointRefs[CPU_SWAP_PLUG_ORANGE]().opacity(1, 0.22, easeOutCubic),
+    vgpuCpuBusJointRefs[CPU_SWAP_PLUG_GREEN]().opacity(1, 0.22, easeOutCubic),
+    loopFor(CPU_PLUG_FLOW_RECONNECT_SEC, function* () {
+      yield* all(
+        ...CPU_POST_SWAP_FLOW_PLUGS.map(i =>
+          vgpuCpuPlugFlowRefs[i]().lineDashOffset(
+            -CPU_PLUG_FLOW_DASH_CYCLE,
+            CPU_PLUG_FLOW_STEP_SEC,
+            linear,
+          ),
+        ),
+      );
+      for (const i of CPU_POST_SWAP_FLOW_PLUGS) {
+        vgpuCpuPlugFlowRefs[i]().lineDashOffset(0);
+      }
+    }),
+  );
+
+  yield* beginSlide('virt-gpu-cpu-teal-off');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  yield* vgpuCpuHypervisor().scale(1.12, 0.18, easeOutBack);
+  yield* vgpuCpuHypervisor().scale(1, 0.16, easeOutCubic);
+
+  yield* all(
+    vgpuCpuPlugBaseRefs[CPU_TEAL_PLUG_INDEX]().end(0, 0.3, easeOutCubic),
+    vgpuCpuPlugFlowRefs[CPU_TEAL_PLUG_INDEX]().end(0, 0.3, easeOutCubic),
+    vgpuCpuPlugFlowRefs[CPU_TEAL_PLUG_INDEX]().opacity(0, 0.18, easeOutCubic),
+    vgpuCpuBusJointRefs[CPU_TEAL_PLUG_INDEX]().opacity(0, 0.18, easeOutCubic),
+  );
+
+  yield* beginSlide('virt-gpu-cpu-ram-b');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  const pktTealRam = cpuContextPacketPositions(CPU_TEAL_SAVE_PCPU, 0);
+  vgpuCpuContextPackets[0]().fill(CPU_TEAL_VCPU_COLOR);
+  vgpuCpuContextPackets[0]().x(pktTealRam.from[0]);
+  vgpuCpuContextPackets[0]().y(pktTealRam.from[1]);
+  vgpuCpuContextPackets[0]().opacity(1);
+  yield* all(
+    vgpuCpuContextPackets[0]().x(pktTealRam.to[0], 0.55, easeInOutCubic),
+    vgpuCpuContextPackets[0]().y(pktTealRam.to[1], 0.55, easeInOutCubic),
+    vgpuCpuPcpuFillRefs[CPU_TEAL_SAVE_PCPU]().fill('#FFFFFF', 0.4, easeOutCubic),
+    vgpuCpuRam().scale(1.07, 0.22, easeOutBack),
+  );
+  yield* all(
+    vgpuCpuContextPackets[0]().opacity(0, 0.15, easeOutCubic),
+    vgpuCpuRam().scale(1, 0.14, easeOutCubic),
+  );
+  vgpuCpuContextPackets[0]().x(pktTealRam.from[0]);
+  vgpuCpuContextPackets[0]().y(pktTealRam.from[1]);
+
+  const pktCyanBack = cpuContextPacketPositionsFromRam(CPU_TEAL_SAVE_PCPU, 1);
+  vgpuCpuContextPackets[1]().fill(CPU_VM_B_LIGHT_CYAN);
+  vgpuCpuContextPackets[1]().x(pktCyanBack.from[0]);
+  vgpuCpuContextPackets[1]().y(pktCyanBack.from[1]);
+  vgpuCpuContextPackets[1]().opacity(1);
+  yield* all(
+    vgpuCpuContextPackets[1]().x(pktCyanBack.to[0], 0.55, easeInOutCubic),
+    vgpuCpuContextPackets[1]().y(pktCyanBack.to[1], 0.55, easeInOutCubic),
+    vgpuCpuRam().scale(1.06, 0.2, easeOutBack),
+  );
+  yield* all(
+    vgpuCpuContextPackets[1]().opacity(0, 0.15, easeOutCubic),
+    vgpuCpuRam().scale(1, 0.14, easeOutCubic),
+    vgpuCpuPcpuFillRefs[CPU_TEAL_SAVE_PCPU]().fill(
+      CPU_VM_B_LIGHT_CYAN,
+      0.28,
+      easeOutCubic,
+    ),
+  );
+  vgpuCpuContextPackets[1]().x(pktCyanBack.from[0]);
+  vgpuCpuContextPackets[1]().y(pktCyanBack.from[1]);
+
+  yield* beginSlide('virt-gpu-cpu-cola-b');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  const vmBCyanPts = cpuPlugRoute('b', 1, 3);
+  vgpuCpuPlugBaseRefs[CPU_VM_B_CYAN_PLUG_INDEX]().points(vmBCyanPts);
+  vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().points(vmBCyanPts);
+  vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().lineDash(flowDash);
+  vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().lineWidth(
+    CPU_PLUG_FLOW_LINE_WIDTH,
+  );
+  vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().opacity(
+    CPU_PLUG_FLOW_LAYER_OPACITY,
+  );
+  vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().lineDashOffset(0);
+
+  yield* all(
+    vgpuCpuPlugBaseRefs[CPU_VM_B_CYAN_PLUG_INDEX]().end(1, 0.34, easeOutCubic),
+    vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().end(1, 0.34, easeOutCubic),
+    vgpuCpuBusJointRefs[CPU_VM_B_CYAN_PLUG_INDEX]().opacity(
+      1,
+      0.22,
+      easeOutCubic,
+    ),
+    loopFor(CPU_PLUG_FLOW_RECONNECT_SEC, function* () {
+      yield* all(
+        ...CPU_POST_RESTORE_FLOW_PLUGS.map(i =>
+          vgpuCpuPlugFlowRefs[i]().lineDashOffset(
+            -CPU_PLUG_FLOW_DASH_CYCLE,
+            CPU_PLUG_FLOW_STEP_SEC,
+            linear,
+          ),
+        ),
+      );
+      for (const i of CPU_POST_RESTORE_FLOW_PLUGS) {
+        vgpuCpuPlugFlowRefs[i]().lineDashOffset(0);
+      }
+    }),
+  );
+
+  yield* beginSlide('virt-gpu-cpu-rapido');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  vgpuSubtitle().text('Lo mismo con GPU, pero más caro al cambiar');
+  yield* all(
+    vgpuCpuPhase().opacity(0, 0.35, easeOutCubic),
+    vgpuGpuPhase().opacity(1, 0.45, easeOutCubic),
+  );
+  yield* beginSlide('virt-gpu-vgpu-arquitectura');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+
+  yield* all(
+    vgpuGpuVmA().opacity(1, 0.25, easeOutCubic),
+    vgpuGpuVmB().opacity(0.4, 0.25, easeOutCubic),
+  );
+
+  yield* beginSlide('virt-gpu-vgpu-cambio');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+  yield* all(
+    vgpuGpuVmA().opacity(0.4, 0.3, easeOutCubic),
+    vgpuGpuVmB().opacity(1, 0.3, easeOutCubic),
+    vgpuGpuHypervisor().scale(1.03, 0.25, easeOutCubic),
+    vgpuSpill().opacity(1, 0.35, easeOutCubic),
+  );
+
+  yield* beginSlide('virt-gpu-vgpu-spill');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+  vgpuSpillChunk().position([-228, 42], 0);
+  yield* vgpuSpillChunk().position([228, 72], 1.4, easeInOutCubic);
+  yield* vgpuGpuHypervisor().scale(1, 0.2, easeOutCubic);
+  yield* vgpuGpuFoot().opacity(1, 0.35, easeOutCubic);
+  yield* beginSlide('virt-gpu-vgpu-conclusion-panel');
+  yield* waitFor(VGPU_TIMELINE_PAD);
+  yield* all(
+    vgpuGpuPhase().opacity(0.15, 0.4, easeOutCubic),
+    vgpuSpill().opacity(0, 0.3, easeOutCubic),
+    vgpuGpuFoot().opacity(0, 0.25, easeOutCubic),
+    vgpuConclusion().opacity(1, 0.5, easeOutCubic),
+  );
+  yield* beginSlide('virt-gpu-vgpu-conclusion');
 
   yield* scrollTo(panel => {
     panel.add(
       <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
-        <VirtualizationCompareSlide />
+        <MigVirtualizationSlide />
       </Layout>,
     );
   });
-  setFooter(['doe', 'nistHypervisor125a', 'nistContainers190', 'berkeley2024']);
-  yield* beginSlide('virt-comparacion-escala');
+  setFooter(['nvidiaMigGuide', 'awsEksMig', 'nvidiaMigBlog']);
+  yield* beginSlide('virt-gpu-mig');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <MigUseCaseExampleSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['nvidiaMigBlog', 'nvidiaMigGuide']);
+  yield* beginSlide('virt-gpu-mig-ejemplo');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <GpuIdleAndRemoteAccessSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['thunderComputeGpuTcp', 'nvidiaMigGuide', 'awsEksMig']);
+  yield* beginSlide('virt-gpu-idle-remoto');
+
+  // —— Agua, energía y cómo explicarlo (texto + gráficas LBNL) ——
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <WaterDcIntroSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['lbnlDcWater2024', 'leiDcWaterReview2025']);
+  yield* beginSlide('ambiente-agua-intro');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <WaterDcSourcesSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['lbnlDcWater2024', 'microsoftDatacenterWue']);
+  yield* beginSlide('ambiente-agua-fuentes');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <WaterDcWasteSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['leiDcWaterReview2025', 'liMakingAiLessThirsty']);
+  yield* beginSlide('ambiente-agua-ciclo');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <WaterHyperscalerSlide />
+      </Layout>,
+    );
+  });
+  setFooter([
+    'microsoftDatacenterWue',
+    'microsoftWaterStewardship2026',
+    'googleDatacenterWater',
+  ]);
+  yield* beginSlide('ambiente-agua-empresas');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <CarbonAwareWorkshopBridgeSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['garCarbonAwareRouting', 'berkeley2024']);
+  yield* beginSlide('ambiente-carbon-aware');
+
+  const waterLine = createRef<Line>();
+  const waterPointRefs = dcWaterTrend.map(() => createRef<Circle>());
+  const waterLabelRefs = dcWaterTrend.map(() => createRef<Txt>());
+  const waterNote = createRef<Txt>();
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <WaterTrendChart
+          lineRef={waterLine}
+          pointRefs={waterPointRefs}
+          labelRefs={waterLabelRefs}
+          noteRef={waterNote}
+        />
+      </Layout>,
+    );
+  });
+  setFooter(['lbnlDcWater2024', 'berkeley2024']);
+  yield* beginSlide('ambiente-agua-grafica');
+  yield* waterLine().end(1, 1.2, easeOutCubic);
+  yield* all(
+    ...dcWaterTrend.map((p, i) =>
+      all(
+        waterPointRefs[i]().scale(1, 0.25, easeOutCubic),
+        waterLabelRefs[i]().opacity(p.label ? 1 : 0, 0.2),
+      ),
+    ),
+    waterNote().opacity(1, 0.45),
+  );
+  yield* beginSlide('ambiente-agua-grafica-listo');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <EnergyDcIntroSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['berkeley2024', 'berkeley2026']);
+  yield* beginSlide('ambiente-energia-intro');
+
+  const energyLine = createRef<Line>();
+  const energyPointRefs = dcEnergyTrend.map(() => createRef<Circle>());
+  const energyLabelRefs = dcEnergyTrend.map(() => createRef<Txt>());
+  const energyNote = createRef<Txt>();
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <EnergyTrendChart
+          lineRef={energyLine}
+          pointRefs={energyPointRefs}
+          labelRefs={energyLabelRefs}
+          noteRef={energyNote}
+        />
+      </Layout>,
+    );
+  });
+  setFooter(['berkeley2024']);
+  yield* beginSlide('ambiente-energia-grafica');
+  yield* energyLine().end(1, 1.4, easeOutCubic);
+  yield* all(
+    ...dcEnergyTrend.map((p, i) =>
+      all(
+        energyPointRefs[i]().scale(1, 0.22, easeOutCubic),
+        energyLabelRefs[i]().opacity(p.label ? 1 : 0, 0.2),
+      ),
+    ),
+    energyNote().opacity(1, 0.45),
+  );
+  yield* beginSlide('ambiente-energia-grafica-listo');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <HowToExplainSlide />
+      </Layout>,
+    );
+  });
+  setFooter([
+    'berkeley2024',
+    'lbnlDcWater2024',
+    'googleGeminiEnvMetrics2025',
+    'liMakingAiLessThirsty',
+  ]);
+  yield* beginSlide('ambiente-como-explicarlo');
+
+  // —— Uso responsable: liviano vs pesado ——
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <RightToolIntroSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['chiSmallerModel2025', 'llmEnergyAccuracy2025']);
+  yield* beginSlide('uso-ia-herramienta');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <SkipGenerativeAiSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['chiSmallerModel2025']);
+  yield* beginSlide('uso-ia-sin-generativa');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <LighterModelsSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['llmEnergyAccuracy2025', 'garCarbonAwareRouting']);
+  yield* beginSlide('uso-ia-livianos');
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
+        <HeavyLlmWhenSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['anthropicPricing', 'openAiPricing']);
+  yield* beginSlide('uso-ia-pesados');
 });
