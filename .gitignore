@@ -6,3 +6,4 @@ output/
 .env
 .env.*
 *.local
+tmp-lbnl-*.pdf

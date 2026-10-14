@@ -1,0 +1,77 @@
+{
+  "page": 55,
+  "calibrated": [
+    {
+      "year": 2014,
+      "billionLiters": 21.2,
+      "publishedAnchor": true,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2015,
+      "billionLiters": 21.5,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2016,
+      "billionLiters": 21.8,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2017,
+      "billionLiters": 22.7,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2018,
+      "billionLiters": 23.6,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2019,
+      "billionLiters": 25.9,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2020,
+      "billionLiters": 28.2,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2021,
+      "billionLiters": 41.1,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2022,
+      "billionLiters": 54.0,
+      "publishedAnchor": false,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    },
+    {
+      "year": 2023,
+      "billionLiters": 66.0,
+      "publishedAnchor": true,
+      "source": "LBNL-2001637 Fig. 5.9 historical stacked-area total (PDF extract)"
+    }
+  ],
+  "anchors": {
+    "2014": 21.2,
+    "2023": 66.0
+  },
+  "yearT": {
+    "2014": 0.2,
+    "2016": 0.3,
+    "2018": 0.4,
+    "2020": 0.55,
+    "2022": 0.9,
+    "2023": 1.0
+  }
+}

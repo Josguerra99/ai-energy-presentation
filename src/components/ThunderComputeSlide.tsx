@@ -1,8 +1,48 @@
-import {Layout, Rect, Spline, Txt} from '@motion-canvas/2d';
+import {Circle, Layout, Rect, Spline, Txt} from '@motion-canvas/2d';
 import type {Reference} from '@motion-canvas/core';
 import {theme} from '../theme';
+import {
+  CPU_PLUG_FLOW_LAYER_OPACITY,
+  CPU_PLUG_FLOW_LINE_WIDTH,
+  cpuPlugFlowLineDash,
+} from './VgpuContextSwitchSlide';
 
 export const THUNDER_POOL_GPU_COUNT = 4;
+
+/** Cable VM ↔ shim CUDA (contraste sobre blanco / amarillo PyTorch). */
+export const THUNDER_VM_CUDA_PLUG_COLOR = theme.pie[0];
+/** Cable CUDA ↔ pool por TCP. */
+export const THUNDER_ATTACH_PLUG_COLOR = theme.magenta;
+
+/** Misma cadencia que desconexión vCPU → pCPU. */
+export const THUNDER_PLUG_DISCONNECT_SEC = 0.3;
+export const THUNDER_PLUG_FLOW_FADE_SEC = 0.18;
+export const THUNDER_PLUG_CONNECT_SEC = 0.34;
+
+export function thunderPlugRoutePoints(
+  from: [number, number],
+  to: [number, number],
+): [number, number][] {
+  return [from, to];
+}
+
+export function thunderVmCudaPlugRoute(): [number, number][] {
+  return thunderPlugRoutePoints([-330, 28], [-220, 28]);
+}
+
+export function thunderAttachPlugRoute(): [number, number][] {
+  return thunderPlugRoutePoints([-20, 28], [260, 44]);
+}
+
+/** Punto de acento en el cable (mitad del segmento recto). */
+export function thunderPlugBusJoint(
+  pts: [number, number][],
+): [number, number] | null {
+  if (pts.length < 2) return null;
+  const [x0, y0] = pts[0];
+  const [x1, y1] = pts[pts.length - 1];
+  return [(x0 + x1) / 2, (y0 + y1) / 2];
+}
 
 type ThunderComputeSlideProps = {
   titleRef: Reference<Txt>;
@@ -10,8 +50,12 @@ type ThunderComputeSlideProps = {
   statusRef: Reference<Txt>;
   vmRef: Reference<Layout>;
   cudaRef: Reference<Layout>;
+  vmCudaLineRef: Reference<Spline>;
+  vmCudaFlowRef: Reference<Spline>;
+  vmCudaBusJointRef: Reference<Circle>;
   attachLineRef: Reference<Spline>;
   attachFlowRef: Reference<Spline>;
+  attachBusJointRef: Reference<Circle>;
   poolGpuRefs: Reference<Rect>[];
   poolGpuLabelRefs: Reference<Txt>[];
 };
@@ -26,16 +70,20 @@ export function ThunderComputeSlide({
   statusRef,
   vmRef,
   cudaRef,
+  vmCudaLineRef,
+  vmCudaFlowRef,
+  vmCudaBusJointRef,
   attachLineRef,
   attachFlowRef,
+  attachBusJointRef,
   poolGpuRefs,
   poolGpuLabelRefs,
 }: ThunderComputeSlideProps) {
-  const attachPts: [number, number][] = [
-    [-24, 28],
-    [80, 28],
-    [200, 28],
-  ];
+  const plugFlowDash = cpuPlugFlowLineDash();
+  const vmCudaPts = thunderVmCudaPlugRoute();
+  const attachPts = thunderAttachPlugRoute();
+  const vmCudaJoint = thunderPlugBusJoint(vmCudaPts)!;
+  const attachJoint = thunderPlugBusJoint(attachPts)!;
 
   return (
     <Layout layout={false} width={'100%'} height={'100%'}>
@@ -155,40 +203,6 @@ export function ThunderComputeSlide({
         />
       </Layout>
 
-      <Txt
-        text="Fabric del DC · TCP"
-        fontFamily={theme.bodyFont}
-        fontSize={15}
-        fontWeight={700}
-        fill={theme.black}
-        x={80}
-        y={-50}
-      />
-
-      <Layout layout={false} y={20}>
-        <Spline
-          ref={attachLineRef}
-          points={attachPts}
-          smoothness={0.42}
-          stroke={theme.black}
-          lineWidth={4}
-          lineCap="round"
-          end={1}
-        />
-        <Spline
-          ref={attachFlowRef}
-          points={attachPts}
-          smoothness={0.42}
-          stroke={theme.magenta}
-          lineWidth={10}
-          lineCap="round"
-          lineDash={[14, 22]}
-          lineDashOffset={0}
-          opacity={0.55}
-          end={1}
-        />
-      </Layout>
-
       <Layout layout={false} x={380} y={20}>
         <Rect width={400} height={220} fill={theme.black} x={4} y={4} />
         <Rect
@@ -236,6 +250,86 @@ export function ThunderComputeSlide({
           fontWeight={600}
           fill={theme.grey}
           y={72}
+        />
+      </Layout>
+
+      <Txt
+        text="Fabric del DC · TCP"
+        fontFamily={theme.bodyFont}
+        fontSize={15}
+        fontWeight={700}
+        fill={theme.black}
+        x={80}
+        y={-50}
+      />
+
+      {/* Enchufes encima de las cajas (mismo criterio que fase CPU en VgpuContextSwitchSlide). */}
+      <Layout layout={false} zIndex={40}>
+        <Spline
+          ref={vmCudaLineRef}
+          points={vmCudaPts}
+          smoothness={0}
+          stroke={THUNDER_VM_CUDA_PLUG_COLOR}
+          lineWidth={4}
+          lineCap="round"
+          lineJoin="miter"
+          end={0}
+        />
+        <Spline
+          ref={vmCudaFlowRef}
+          points={vmCudaPts}
+          smoothness={0}
+          stroke={THUNDER_VM_CUDA_PLUG_COLOR}
+          lineWidth={CPU_PLUG_FLOW_LINE_WIDTH}
+          lineCap="round"
+          lineDash={plugFlowDash}
+          lineDashOffset={0}
+          opacity={0}
+          end={0}
+        />
+        <Circle
+          ref={vmCudaBusJointRef}
+          x={vmCudaJoint[0]}
+          y={vmCudaJoint[1]}
+          width={14}
+          height={14}
+          fill={THUNDER_VM_CUDA_PLUG_COLOR}
+          stroke={theme.black}
+          lineWidth={2}
+          opacity={0}
+        />
+        <Spline
+          ref={attachLineRef}
+          points={attachPts}
+          smoothness={0}
+          stroke={THUNDER_ATTACH_PLUG_COLOR}
+          lineWidth={4}
+          lineCap="round"
+          lineJoin="miter"
+          end={0}
+        />
+        <Spline
+          ref={attachFlowRef}
+          points={attachPts}
+          smoothness={0}
+          stroke={THUNDER_ATTACH_PLUG_COLOR}
+          lineWidth={CPU_PLUG_FLOW_LINE_WIDTH}
+          lineCap="round"
+          lineDash={plugFlowDash}
+          lineDashOffset={0}
+          opacity={0}
+          end={0}
+        />
+        <Circle
+          ref={attachBusJointRef}
+          x={attachJoint[0]}
+          y={attachJoint[1]}
+          width={14}
+          height={14}
+          fill={THUNDER_ATTACH_PLUG_COLOR}
+          stroke={theme.black}
+          lineWidth={2}
+          opacity={0}
         />
       </Layout>
 

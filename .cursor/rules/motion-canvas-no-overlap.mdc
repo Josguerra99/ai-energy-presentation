@@ -1,0 +1,34 @@
+---
+description: Motion Canvas slides — zonas fijas, sin solapamientos; revisar layout antes de dar por hecho
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Slides Motion Canvas — no superponer elementos
+
+Antes de cerrar un slide nuevo o una gráfica, **comprobar que título, subtítulo, gráfico, leyenda, valores y pie de fuentes no comparten la misma caja**.
+
+## Reglas obligatorias
+
+1. **`layout={false}`** en contenedores con gráficos, pies, overlays o posiciones `x`/`y` manuales (ver `MOTION-CANVAS-LAYOUT.md`).
+2. **`Txt` con leyenda o etiquetas:** `textAlign="left"` + **`offsetX={-1}`** (ancla izquierda). Sin `offsetX`, el texto se centra en `x` y invade gráficos vecinos.
+3. **Columnas lado a lado:** calcular borde derecho del gráfico (`centerX + radius/ halfWidth`) y borde izquierdo de la leyenda; dejar **≥ 80 px** de hueco. Copiar patrones existentes (`TrainInferParityPieChart`, `MetricTrendChart`, `WaterDirectIndirectCompareSlide`).
+4. **Un slide = zonas reservadas:** título (y ≈ −320), subtítulo (−260), cuerpo (centro), caption/nota (y ≥ +260). No colocar leyendas largas en y=0 si el pie ya usa y=+288.
+5. **Tras editar layout:** ejecutar `npm run build` y, si el usuario puede ver preview, pedir un vistazo o revisar screenshot mental con coordenadas — no asumir que “se ve bien”.
+
+## Pie + leyenda (plantilla)
+
+```tsx
+const PIE_X = -300;
+const LEGEND_X = 140; // PIE_X + PIE_R + gap ≤ LEGEND_X − margen swatch
+
+<Layout layout={false} x={LEGEND_X} y={rowY}>
+  <Rect x={-32} y={-11} width={22} height={22} … />
+  <Txt x={0} offsetX={-1} textAlign="left" width={480} … />
+</Layout>
+```
+
+## Prohibido
+
+- Apilar varios `Txt` en el mismo `(x,y)` sin flex (`VStack`) o sin `y` distintos.
+- Reutilizar coordenadas de un slide en otro sin re-leer `WATER_SLIDE_LAYOUT_H` / márgenes del pie de fuentes.

@@ -32,14 +32,19 @@ import {
 } from '../../components/GpuTrainingProblemSlide';
 import {VgpuMigParadigmsSlide} from '../../components/VgpuMigParadigmsSlide';
 import {
+  THUNDER_PLUG_CONNECT_SEC,
+  THUNDER_PLUG_DISCONNECT_SEC,
+  THUNDER_PLUG_FLOW_FADE_SEC,
   THUNDER_POOL_GPU_COUNT,
   ThunderComputeSlide,
 } from '../../components/ThunderComputeSlide';
+import {TRAIN_GPU_PULSE_STRIDE} from '../shared/presentation-timing';
 import {
   CPU_PLUG_COUNT,
   CPU_PLUG_FLOW_DASH_CYCLE,
   CPU_PLUG_FLOW_STEP_SEC,
   CPU_PLUG_FLOW_DURATION_SEC,
+  CPU_PLUG_FLOW_LAYER_OPACITY,
   CPU_PLUG_FLOW_RECONNECT_SEC,
   CPU_CONTEXT_PACKET_COUNT,
   CPU_CONTEXT_PACKET_PCPUS,
@@ -54,7 +59,6 @@ import {
   CPU_TEAL_VCPU_COLOR,
   CPU_VM_B_CYAN_PLUG_INDEX,
   CPU_VM_B_LIGHT_CYAN,
-  CPU_PLUG_FLOW_LAYER_OPACITY,
   CPU_PLUG_FLOW_LINE_WIDTH,
   cpuPlugFlowLineDash,
   cpuContextPacketPositions,
@@ -80,7 +84,6 @@ import {
 } from '../../components/VgpuContextSwitchSlide';
 import {theme} from '../../theme';
 import type {Paso0SceneContext} from './paso0-scene-context';
-import {VGPU_TIMELINE_PAD} from './paso0-scene-context';
 
 /** Virtualización GPU: vGPU · MIG · consolidación · entrenamiento. */
 export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
@@ -123,11 +126,9 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   const vgpuGpuVm1 = createRef<Layout>();
   const vgpuGpuVm2 = createRef<Layout>();
   const vgpuGpuVm1Body = createRef<Rect>();
-  const vgpuGpuVm1Port = createRef<Rect>();
   const vgpuGpuVm1ActiveLabel = createRef<Txt>();
   const vgpuGpuVm1Label = createRef<Txt>();
   const vgpuGpuVm2Body = createRef<Rect>();
-  const vgpuGpuVm2Port = createRef<Rect>();
   const vgpuGpuVm2ActiveLabel = createRef<Txt>();
   const vgpuGpuVm2Label = createRef<Txt>();
   const vgpuGpuVm2Task = createRef<Layout>();
@@ -164,11 +165,9 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
           gpuVm1Ref={vgpuGpuVm1}
           gpuVm2Ref={vgpuGpuVm2}
           gpuVm1BodyRef={vgpuGpuVm1Body}
-          gpuVm1PortRef={vgpuGpuVm1Port}
           gpuVm1ActiveLabelRef={vgpuGpuVm1ActiveLabel}
           gpuVm1LabelRef={vgpuGpuVm1Label}
           gpuVm2BodyRef={vgpuGpuVm2Body}
-          gpuVm2PortRef={vgpuGpuVm2Port}
           gpuVm2ActiveLabelRef={vgpuGpuVm2ActiveLabel}
           gpuVm2LabelRef={vgpuGpuVm2Label}
           gpuVm2TaskRef={vgpuGpuVm2Task}
@@ -193,7 +192,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   vgpuGpuBusJoint2().opacity(0);
 
   yield* beginSlide('virt-gpu-cpu-titulo');
-
   yield* loopFor(CPU_PLUG_FLOW_DURATION_SEC, function* () {
     yield* all(
       ...vgpuCpuPlugFlowRefs
@@ -212,8 +210,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   });
 
   yield* beginSlide('virt-gpu-cpu-preempt');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   yield* vgpuCpuHypervisor().scale(1.12, 0.18, easeOutBack);
   yield* vgpuCpuHypervisor().scale(1, 0.16, easeOutCubic);
 
@@ -253,8 +249,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   vgpuCpuContextPackets[1]().y(pktB1.from[1]);
 
   yield* beginSlide('virt-gpu-cpu-schedule');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   yield* all(
     ...CPU_PREEMPT_PLUG_INDICES.map(i =>
       vgpuCpuPlugBaseRefs[i]().end(0, 0.3, easeOutCubic),
@@ -272,8 +266,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   );
 
   yield* beginSlide('virt-gpu-cpu-cola');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   const orangePts = cpuPlugRoute('a', 3, 2);
   const greenPts = cpuPlugRoute('b', 0, 3);
   vgpuCpuPlugBaseRefs[CPU_SWAP_PLUG_ORANGE]().points(orangePts);
@@ -315,8 +307,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   );
 
   yield* beginSlide('virt-gpu-cpu-teal-off');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   yield* vgpuCpuHypervisor().scale(1.12, 0.18, easeOutBack);
   yield* vgpuCpuHypervisor().scale(1, 0.16, easeOutCubic);
 
@@ -328,8 +318,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   );
 
   yield* beginSlide('virt-gpu-cpu-ram-b');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   const pktTealRam = cpuContextPacketPositions(CPU_TEAL_SAVE_PCPU, 0);
   vgpuCpuContextPackets[0]().fill(CPU_TEAL_VCPU_COLOR);
   vgpuCpuContextPackets[0]().x(pktTealRam.from[0]);
@@ -371,8 +359,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   vgpuCpuContextPackets[1]().y(pktCyanBack.from[1]);
 
   yield* beginSlide('virt-gpu-cpu-cola-b');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   const vmBCyanPts = cpuPlugRoute('b', 1, 3);
   vgpuCpuPlugBaseRefs[CPU_VM_B_CYAN_PLUG_INDEX]().points(vmBCyanPts);
   vgpuCpuPlugFlowRefs[CPU_VM_B_CYAN_PLUG_INDEX]().points(vmBCyanPts);
@@ -410,8 +396,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   );
 
   yield* beginSlide('virt-gpu-cpu-rapido');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
   vgpuSubtitle().text('GPU: miles de SM + 80 GB VRAM (HBM)');
   vgpuGpuCore().scale(0.92);
   vgpuGpuPlugFlow().lineDashOffset(0);
@@ -427,7 +411,7 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
     vgpuGpuPhase().opacity(1, 0.45, easeOutCubic),
     vgpuGpuCore().scale(1, 0.5, easeOutBack),
   );
-  yield* waitFor(VGPU_TIMELINE_PAD);
+  yield* beginSlide('virt-gpu-cpu-rapido-flujo');
   yield* loopFor(GPU_VM_PLUG_FLOW_SEC, function* () {
     yield* vgpuGpuPlugFlow().lineDashOffset(
       -CPU_PLUG_FLOW_DASH_CYCLE,
@@ -438,7 +422,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   });
 
   yield* beginSlide('virt-gpu-vgpu-vm2-tarea');
-  yield* waitFor(VGPU_TIMELINE_PAD);
   vgpuSubtitle().text(
     `vGPU 2 quiere continuar una tarea · ${GPU_VRAM_VM2_TASK_GB} GB de VRAM`,
   );
@@ -447,11 +430,9 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
     vgpuGpuVm2Task().opacity(1, 0.32, easeOutCubic),
     vgpuGpuVm2Body().opacity(0.85, 0.32, easeOutCubic),
   );
-  yield* waitFor(0.55);
   yield* vgpuGpuVm2().scale(1, 0.28, easeOutCubic);
 
   yield* beginSlide('virt-gpu-vgpu-arquitectura');
-  yield* waitFor(VGPU_TIMELINE_PAD);
 
   vgpuSubtitle().text(
     'Analogía CPU: parecería que el estado (SM) va a RAM del host por PCIe',
@@ -480,10 +461,8 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   vgpuGpuTransferPackets[0]().x(pktGpuCtxRam.from[0]);
   vgpuGpuTransferPackets[0]().y(pktGpuCtxRam.from[1]);
   yield* vgpuGpuRam().scale(1, 0.14, easeOutCubic);
-  yield* waitFor(VGPU_TIMELINE_PAD);
 
   yield* beginSlide('virt-gpu-vgpu-contexto-vram');
-  yield* waitFor(VGPU_TIMELINE_PAD);
   vgpuSubtitle().text(
     'En GPU: el congelamiento va a VRAM (driver) — no hace falta RAM del host',
   );
@@ -511,16 +490,9 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   );
   vgpuGpuTransferPackets[0]().x(pktGpuFreeze.from[0]);
   vgpuGpuTransferPackets[0]().y(pktGpuFreeze.from[1]);
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
-  yield* beginSlide('virt-gpu-vgpu-vram-uso');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
-  vgpuSubtitle().text('vGPU 1 ya ocupa 60 GB de VRAM del perfil');
 
   yield* beginSlide('virt-gpu-vgpu-vram-20');
-  yield* waitFor(VGPU_TIMELINE_PAD);
-
+  vgpuSubtitle().text('vGPU 1 ya ocupa 60 GB de VRAM del perfil');
   vgpuSubtitle().text(
     `Sacar ${GPU_VRAM_PARTIAL_EVAC_GB} GB por PCIe (working set parcial, no todo el perfil)`,
   );
@@ -556,10 +528,8 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   vgpuGpuTransferPackets[1]().x(pktGpu20.from[0]);
   vgpuGpuTransferPackets[1]().y(pktGpu20.from[1]);
   yield* vgpuGpuRam().scale(1, 0.16, easeOutCubic);
-  yield* waitFor(VGPU_TIMELINE_PAD);
 
   yield* beginSlide('virt-gpu-vgpu-vm-swap');
-  yield* waitFor(VGPU_TIMELINE_PAD);
   vgpuSubtitle().text(
     `Desconectar vGPU 1 · enchufar vGPU 2 · ${GPU_VRAM_VM2_TASK_GB} GB → VRAM`,
   );
@@ -587,14 +557,12 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
     vgpuGpuVm1Body().opacity(0.55, 0.32, easeOutCubic),
     vgpuGpuVm1Body().lineWidth(2, 0.32, easeOutCubic),
     vgpuGpuVm1Label().y(0, 0.32, easeOutCubic),
-    vgpuGpuVm1Port().opacity(0, 0.28, easeOutCubic),
     vgpuGpuVm1ActiveLabel().opacity(0, 0.28, easeOutCubic),
     vgpuGpuVm2Task().opacity(0, 0.22, easeOutCubic),
     vgpuGpuVm2Body().fill(theme.yellow, 0.35, easeOutCubic),
     vgpuGpuVm2Body().opacity(1, 0.35, easeOutCubic),
     vgpuGpuVm2Body().lineWidth(4, 0.35, easeOutCubic),
     vgpuGpuVm2Label().y(-8, 0.35, easeOutCubic),
-    vgpuGpuVm2Port().opacity(1, 0.35, easeOutCubic),
     vgpuGpuVm2ActiveLabel().opacity(1, 0.35, easeOutCubic),
     vgpuGpuPlug2Base().end(1, 0.34, easeOutCubic),
     vgpuGpuPlug2Flow().end(1, 0.34, easeOutCubic),
@@ -627,19 +595,21 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   yield* all(
     vgpuGpuTransferPackets[1]().opacity(0, 0.2, easeOutCubic),
     vgpuGpuRam().scale(1.05, 0.22, easeOutBack),
-    loopFor(GPU_VM_PLUG_FLOW_SEC, function* () {
-      yield* vgpuGpuPlug2Flow().lineDashOffset(
-        -CPU_PLUG_FLOW_DASH_CYCLE,
-        CPU_PLUG_FLOW_STEP_SEC,
-        linear,
-      );
-      vgpuGpuPlug2Flow().lineDashOffset(0);
-    }),
   );
   vgpuGpuTransferPackets[1]().x(pktRam40.from[0]);
   vgpuGpuTransferPackets[1]().y(pktRam40.from[1]);
+  yield* beginSlide('virt-gpu-vgpu-vm-swap-flujo');
+  yield* loopFor(GPU_VM_PLUG_FLOW_SEC, function* () {
+    yield* vgpuGpuPlug2Flow().lineDashOffset(
+      -CPU_PLUG_FLOW_DASH_CYCLE,
+      CPU_PLUG_FLOW_STEP_SEC,
+      linear,
+    );
+    vgpuGpuPlug2Flow().lineDashOffset(0);
+  });
   yield* vgpuGpuRam().scale(1, 0.16, easeOutCubic);
 
+  yield* beginSlide('virt-gpu-vgpu-vm-swap-listo');
   yield* scrollTo(panel => {
     panel.add(
       <Layout layout={false} width={CONTENT_W} height={CONTENT_H}>
@@ -673,8 +643,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   });
   setFooter(['nvidiaMigBlog', 'nvidiaMigGuide']);
   yield* beginSlide('virt-gpu-mig-ejemplo');
-
-  yield* beginSlide('virt-gpu-mig-ejemplo-unir');
   yield* all(
     gpuConsolBefore().opacity(0, 0.35),
     gpuConsolAfter().opacity(1, 0.45),
@@ -715,7 +683,6 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
   });
   setFooter(['nvidiaMigGuide', 'awsEksMig']);
   yield* beginSlide('virt-gpu-entrenamiento');
-  yield* waitFor(VGPU_TIMELINE_PAD);
   rackTrainStatus().text('Entrenando · todas las GPUs activas');
   yield* all(
     ...rackTrainGpuCells.map((ref, i) =>
@@ -731,23 +698,27 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
     ),
   );
 
+  yield* beginSlide('virt-gpu-entrenamiento-pulso');
   let rackTrainTick = 0;
   yield* loopFor(TRAIN_GPU_LOOP_SEC, function* () {
     const tick = rackTrainTick;
     yield* all(
-      ...rackTrainGpuCells.map((ref, i) => {
-        const col = i % TRAIN_GPU_COLS;
-        const row = Math.floor(i / TRAIN_GPU_COLS);
-        const hueIdx =
-          (tick * 3 + col + row * 2) % TRAIN_GPU_PULSE_HUES.length;
-        const opacity = 0.55 + ((tick + col + row) % 5) * 0.11;
-        const scale = 0.9 + ((tick + i) % 3) * 0.07;
-        return all(
-          ref().fill(TRAIN_GPU_PULSE_HUES[hueIdx], TRAIN_GPU_TICK_SEC, linear),
-          ref().opacity(opacity, TRAIN_GPU_TICK_SEC, linear),
-          ref().scale(scale, TRAIN_GPU_TICK_SEC, linear),
-        );
-      }),
+      ...rackTrainGpuCells
+        .map((ref, i) => ({ref, i}))
+        .filter(({i}) => i % TRAIN_GPU_PULSE_STRIDE === 0)
+        .map(({ref, i}) => {
+          const col = i % TRAIN_GPU_COLS;
+          const row = Math.floor(i / TRAIN_GPU_COLS);
+          const hueIdx =
+            (tick * 3 + col + row * 2) % TRAIN_GPU_PULSE_HUES.length;
+          const opacity = 0.55 + ((tick + col + row) % 5) * 0.11;
+          const scale = 0.9 + ((tick + i) % 3) * 0.07;
+          return all(
+            ref().fill(TRAIN_GPU_PULSE_HUES[hueIdx], TRAIN_GPU_TICK_SEC, linear),
+            ref().opacity(opacity, TRAIN_GPU_TICK_SEC, linear),
+            ref().scale(scale, TRAIN_GPU_TICK_SEC, linear),
+          );
+        }),
     );
     rackTrainTick++;
   });
@@ -775,14 +746,19 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
           ),
     ),
   );
+  yield* beginSlide('virt-gpu-entrenamiento-listo');
 
   const thunderTitle = createRef<Txt>();
   const thunderSubtitle = createRef<Txt>();
   const thunderStatus = createRef<Txt>();
   const thunderVm = createRef<Layout>();
   const thunderCuda = createRef<Layout>();
+  const thunderVmCudaLine = createRef<Spline>();
+  const thunderVmCudaFlow = createRef<Spline>();
+  const thunderVmCudaBusJoint = createRef<Circle>();
   const thunderAttachLine = createRef<Spline>();
   const thunderAttachFlow = createRef<Spline>();
+  const thunderAttachBusJoint = createRef<Circle>();
   const thunderPoolGpus = Array.from({length: THUNDER_POOL_GPU_COUNT}, () =>
     createRef<Rect>(),
   );
@@ -799,8 +775,12 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
           statusRef={thunderStatus}
           vmRef={thunderVm}
           cudaRef={thunderCuda}
+          vmCudaLineRef={thunderVmCudaLine}
+          vmCudaFlowRef={thunderVmCudaFlow}
+          vmCudaBusJointRef={thunderVmCudaBusJoint}
           attachLineRef={thunderAttachLine}
           attachFlowRef={thunderAttachFlow}
+          attachBusJointRef={thunderAttachBusJoint}
           poolGpuRefs={thunderPoolGpus}
           poolGpuLabelRefs={thunderPoolLabels}
         />
@@ -808,36 +788,78 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
     );
   });
   setFooter(['thunderComputeGpuTcp', 'nvidiaMigGuide']);
-  yield* beginSlide('virt-gpu-thunder-compute');
 
+  thunderVmCudaLine().end(0);
+  thunderVmCudaFlow().end(0);
+  thunderVmCudaFlow().opacity(0);
+  thunderAttachLine().end(0);
+  thunderAttachFlow().end(0);
+  thunderAttachFlow().opacity(0);
+  thunderVmCudaFlow().lineDashOffset(0);
   thunderAttachFlow().lineDashOffset(0);
-  thunderPoolGpus[0]().fill(theme.cyan);
-  thunderPoolLabels[0]().text('GPU 1 · en uso');
-  yield* loopFor(2.2, function* () {
-    yield* thunderAttachFlow().lineDashOffset(
-      -CPU_PLUG_FLOW_DASH_CYCLE,
-      CPU_PLUG_FLOW_STEP_SEC,
-      linear,
+  thunderVmCudaBusJoint().opacity(0);
+  thunderAttachBusJoint().opacity(0);
+  thunderPoolGpus[0]().fill('#2d2d2d');
+
+  yield* beginSlide('virt-gpu-thunder-compute');
+  yield* all(
+    thunderVmCudaLine().end(1, THUNDER_PLUG_CONNECT_SEC, easeOutCubic),
+    thunderVmCudaFlow().end(1, THUNDER_PLUG_CONNECT_SEC, easeOutCubic),
+    thunderVmCudaFlow().opacity(
+      CPU_PLUG_FLOW_LAYER_OPACITY,
+      0.22,
+      easeOutCubic,
+    ),
+    thunderAttachLine().end(1, THUNDER_PLUG_CONNECT_SEC, easeOutCubic),
+    thunderAttachFlow().end(1, THUNDER_PLUG_CONNECT_SEC, easeOutCubic),
+    thunderAttachFlow().opacity(
+      CPU_PLUG_FLOW_LAYER_OPACITY,
+      0.22,
+      easeOutCubic,
+    ),
+    thunderVmCudaBusJoint().opacity(1, 0.22, easeOutCubic),
+    thunderAttachBusJoint().opacity(1, 0.22, easeOutCubic),
+    thunderPoolGpus[0]().fill(theme.cyan, 0.32, easeOutCubic),
+  );
+
+  yield* beginSlide('virt-gpu-thunder-flujo');
+  yield* loopFor(CPU_PLUG_FLOW_RECONNECT_SEC, function* () {
+    yield* all(
+      thunderVmCudaFlow().lineDashOffset(
+        -CPU_PLUG_FLOW_DASH_CYCLE,
+        CPU_PLUG_FLOW_STEP_SEC,
+        linear,
+      ),
+      thunderAttachFlow().lineDashOffset(
+        -CPU_PLUG_FLOW_DASH_CYCLE,
+        CPU_PLUG_FLOW_STEP_SEC,
+        linear,
+      ),
     );
+    thunderVmCudaFlow().lineDashOffset(0);
     thunderAttachFlow().lineDashOffset(0);
   });
 
-  yield* beginSlide('virt-gpu-thunder-idle');
   thunderSubtitle().text(
     'Tras entrenar: lees logs / ajustas código → la GPU puede volver al pool sin pagar chip ocioso',
   );
   thunderStatus().text(
-    'Idle: suelta la GPU · otro workload del pool puede usarla · ~10–20 ms al volver a reclamar',
+    'Idle: suelta la GPU del pool y desconecta la capa CUDA · ~10–20 ms al volver a reclamar',
   );
+  yield* beginSlide('virt-gpu-thunder-idle');
   yield* all(
-    thunderAttachLine().end(0, 0.35, easeOutCubic),
-    thunderAttachFlow().end(0, 0.35, easeOutCubic),
-    thunderAttachFlow().opacity(0, 0.3, easeOutCubic),
-    thunderVm().opacity(0.72, 0.35, easeOutCubic),
-    thunderPoolGpus[0]().fill('#2d2d2d', 0.4, easeOutCubic),
-    thunderPoolGpus[1]().fill(theme.cyan, 0.4, easeOutCubic),
+    thunderAttachLine().end(0, THUNDER_PLUG_DISCONNECT_SEC, easeOutCubic),
+    thunderAttachFlow().end(0, THUNDER_PLUG_DISCONNECT_SEC, easeOutCubic),
+    thunderAttachFlow().opacity(0, THUNDER_PLUG_FLOW_FADE_SEC, easeOutCubic),
+    thunderAttachBusJoint().opacity(0, THUNDER_PLUG_FLOW_FADE_SEC, easeOutCubic),
+    thunderPoolGpus[0]().fill('#2d2d2d', 0.32, easeOutCubic),
   );
-  thunderPoolLabels[0]().text('GPU 1 · libre');
-  thunderPoolLabels[1]().text('GPU 2 · otro job');
+  yield* beginSlide('virt-gpu-thunder-suelta-cuda');
+  yield* all(
+    thunderVmCudaLine().end(0, THUNDER_PLUG_DISCONNECT_SEC, easeOutCubic),
+    thunderVmCudaFlow().end(0, THUNDER_PLUG_DISCONNECT_SEC, easeOutCubic),
+    thunderVmCudaFlow().opacity(0, THUNDER_PLUG_FLOW_FADE_SEC, easeOutCubic),
+    thunderVmCudaBusJoint().opacity(0, THUNDER_PLUG_FLOW_FADE_SEC, easeOutCubic),
+  );
   yield* beginSlide('virt-gpu-listo');
 }

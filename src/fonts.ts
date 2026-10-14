@@ -1,21 +1,22 @@
 import {waitFor} from '@motion-canvas/core';
+import {theme} from './theme';
 
-const FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Jersey+10&family=Space+Grotesk:wght@400;500;700&display=swap';
+const FONT_LOAD_SPECS = [
+  `56px ${theme.pixelFont}`,
+  `400 16px ${theme.bodyFont}`,
+  `500 16px ${theme.bodyFont}`,
+  `700 16px ${theme.bodyFont}`,
+] as const;
 
+/** Espera a que el canvas pueda medir texto con las fuentes del proyecto. */
 export function* loadPresentationFonts() {
   if (typeof document === 'undefined') {
     return;
   }
 
-  const existing = document.querySelector(`link[data-presentation-fonts]`);
-  if (!existing) {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = FONT_HREF;
-    link.setAttribute('data-presentation-fonts', 'true');
-    document.head.appendChild(link);
-  }
+  yield waitFor(0);
 
-  yield waitFor(0.4);
+  yield Promise.all(FONT_LOAD_SPECS.map(spec => document.fonts.load(spec))).then(
+    () => document.fonts.ready,
+  );
 }

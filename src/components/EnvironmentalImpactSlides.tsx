@@ -181,7 +181,7 @@ export function WaterTrendChart({
 }: WaterTrendChartProps) {
   return (
     <MetricTrendChart
-      title="Agua directa en sitio — EE. UU. (sube)"
+      title="Agua directa en sitio — EE. UU."
       yAxisLabel="mil M L"
       yearMin={DC_WATER_YEAR_MIN}
       yearMax={DC_WATER_YEAR_MAX}
@@ -189,7 +189,7 @@ export function WaterTrendChart({
       valueMax={DC_WATER_BIL_L_MAX}
       points={waterMetricPoints}
       valueFormat={v => `${v} mil M L`}
-      note="Consumo directo estimado (refrigeración en el data center). LBNL 2024. La huella indirecta vía electricidad es mucho mayor (~800 mil M L en 2023, mismo informe)."
+      note="Consumo directo estimado (Fig. 5.9, LBNL-2001637). Indirecto vía electricidad ≈ «casi 800» mil M L en 2023 (Fig. 5.10; mix regional, sin PPAs por sitio)."
       lineRef={lineRef}
       pointRefs={pointRefs}
       labelRefs={labelRefs}
@@ -210,7 +210,7 @@ export function EnergyTrendChart({
 }: EnergyTrendChartProps) {
   return (
     <MetricTrendChart
-      title="Electricidad de data centers — EE. UU. (sube)"
+      title="Electricidad de data centers — EE. UU."
       yAxisLabel="TWh/año"
       yearMin={DC_ENERGY_YEAR_MIN}
       yearMax={DC_ENERGY_YEAR_MAX}

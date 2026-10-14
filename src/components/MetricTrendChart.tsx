@@ -25,6 +25,11 @@ export type MetricTrendChartProps = {
   noteRef: Reference<Txt>;
   lineColor?: string;
   pointColor?: string;
+  /** Línea vertical punteada (p. ej. inflexión Meta / agua directa). */
+  inflectionYear?: number;
+  inflectionLineRef?: Reference<Line>;
+  inflectionCaptionRef?: Reference<Txt>;
+  inflectionCaption?: string;
 };
 
 function xForYear(year: number, yearMin: number, yearMax: number): number {
@@ -64,8 +69,21 @@ export function MetricTrendChart({
   noteRef,
   lineColor = theme.cyan,
   pointColor = theme.magenta,
+  inflectionYear,
+  inflectionLineRef,
+  inflectionCaptionRef,
+  inflectionCaption,
 }: MetricTrendChartProps) {
   const linePts = metricLinePoints(points, yearMin, yearMax, valueMin, valueMax);
+  const inflectionX =
+    inflectionYear !== undefined
+      ? xForYear(inflectionYear, yearMin, yearMax)
+      : 0;
+
+  const yearTicks = new Set<number>([yearMin, yearMax]);
+  if (inflectionYear !== undefined) {
+    yearTicks.add(inflectionYear);
+  }
 
   return (
     <Layout layout={false} width={1600} height={760}>
@@ -102,22 +120,32 @@ export function MetricTrendChart({
         x={CHART_X - 48}
         y={CHART_Y - CHART_H / 2}
       />
-      <Txt
-        text={String(yearMin)}
-        fontFamily={theme.bodyFont}
-        fontSize={18}
-        fill={theme.grey}
-        x={xForYear(yearMin, yearMin, yearMax)}
-        y={CHART_Y + 28}
-      />
-      <Txt
-        text={String(yearMax)}
-        fontFamily={theme.bodyFont}
-        fontSize={18}
-        fill={theme.grey}
-        x={xForYear(yearMax, yearMin, yearMax)}
-        y={CHART_Y + 28}
-      />
+      {[...yearTicks]
+        .sort((a, b) => a - b)
+        .map(year => (
+          <Txt
+            key={`yr-${year}`}
+            text={String(year)}
+            fontFamily={theme.bodyFont}
+            fontSize={18}
+            fill={theme.grey}
+            x={xForYear(year, yearMin, yearMax)}
+            y={CHART_Y + 28}
+          />
+        ))}
+      {inflectionLineRef && inflectionYear !== undefined ? (
+        <Line
+          ref={inflectionLineRef}
+          points={[
+            [inflectionX, CHART_Y],
+            [inflectionX, CHART_Y - CHART_H],
+          ]}
+          stroke={theme.black}
+          lineWidth={2}
+          lineDash={[10, 8]}
+          opacity={0}
+        />
+      ) : null}
       <Line
         ref={lineRef}
         points={linePts}
@@ -127,6 +155,22 @@ export function MetricTrendChart({
         lineJoin="round"
         end={0}
       />
+      {inflectionCaptionRef && inflectionCaption ? (
+        <Txt
+          ref={inflectionCaptionRef}
+          text={inflectionCaption}
+          fontFamily={theme.bodyFont}
+          fontSize={16}
+          fontWeight={700}
+          fill={theme.black}
+          textAlign="center"
+          lineHeight={24}
+          width={340}
+          x={inflectionX}
+          y={CHART_Y + 56}
+          opacity={0}
+        />
+      ) : null}
       {points.map((p, i) => (
         <Layout key={`pt-${p.year}`} layout={false}>
           <Circle

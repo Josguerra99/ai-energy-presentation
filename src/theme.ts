@@ -17,8 +17,9 @@ export const theme = {
     '#8AF5FF', // cyan pálido — ops
     '#C4FAFF', // casi blanco-cyan — idle
   ] as const,
-  bodyFont: 'Space Grotesk, sans-serif',
-  pixelFont: 'Jersey 10, sans-serif',
+  /** Nombres exactos de @font-face (global.css); evitar fallback Arial en canvas. */
+  bodyFont: '"Space Grotesk"',
+  pixelFont: '"Jersey 10"',
   border: 3,
   shadow: 6,
 } as const;

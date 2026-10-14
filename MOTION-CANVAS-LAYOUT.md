@@ -45,6 +45,17 @@ El origen del nodo suele ser el **centro**. `x={-960+padding}` no es “esquina 
 - Poner `beginSlide('…-listo')` **antes** de `clearContent()` de la siguiente slide.
 - No mezclar “animar slide N” y “montar slide N+1” en el mismo tramo sin pausa intermedia.
 
+## 5. Checklist anti-solapamiento (obligatorio en slides nuevos)
+
+Antes de dar por hecho un slide con gráfica:
+
+1. ¿Cada `Txt` de leyenda tiene `textAlign="left"` y `offsetX={-1}`?
+2. ¿Pie / barras / líneas a la **izquierda** y leyenda a la **derecha** con hueco medible (p. ej. pie termina en `PIE_X + PIE_R`, leyenda empieza en `LEGEND_X`)?
+3. ¿Título, subtítulo, cuerpo y caption tienen **y** en bandas distintas (no comparten fila)?
+4. ¿El contenedor del gráfico usa `layout={false}`?
+
+Regla Cursor: `.cursor/rules/motion-canvas-no-overlap.mdc`.
+
 ## Referencia
 
 - [Layout](https://motioncanvas.io/docs/layout)

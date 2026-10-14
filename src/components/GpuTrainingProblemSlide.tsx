@@ -1,6 +1,7 @@
 import {Layout, Rect, Txt} from '@motion-canvas/2d';
 import type {Reference} from '@motion-canvas/core';
 import {theme} from '../theme';
+import {TRAIN_GPU_LOOP_SEC as TIMING_TRAIN_GPU_LOOP_SEC} from '../scenes/shared/presentation-timing';
 
 export const TRAIN_GPU_COLS = 40;
 export const TRAIN_GPU_ROWS = 9;
@@ -8,7 +9,7 @@ export const TRAIN_GPU_COUNT = TRAIN_GPU_COLS * TRAIN_GPU_ROWS;
 export const TRAIN_GPU_CELL = 12;
 export const TRAIN_GPU_GAP = 3;
 /** Segundos de animación “entrenando” (colores + pulso en loop). */
-export const TRAIN_GPU_LOOP_SEC = 5.5;
+export const TRAIN_GPU_LOOP_SEC = TIMING_TRAIN_GPU_LOOP_SEC;
 export const TRAIN_GPU_TICK_SEC = 0.1;
 export const TRAIN_GPU_PULSE_HUES = [
   theme.cyan,

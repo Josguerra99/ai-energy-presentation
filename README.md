@@ -25,18 +25,24 @@ En **Video Settings**, deja **Size** en `1920 × 1080` y **Resolution scale** en
 
 Si el layout se ve raro (texto encima, pie en tiras): lee [MOTION-CANVAS-LAYOUT.md](./MOTION-CANVAS-LAYOUT.md) — Motion Canvas **hereda flex del padre**; no se comporta como HTML/CSS por defecto.
 
-## Contenido actual
+## Contenido actual (8 escenas en `project.ts`)
 
-Escena `src/scenes/paso0-servidores.tsx` — bloque inicial:
+En **PRESENT**, elige la escena en el editor y avanza con **Espacio** dentro de ella. Al terminar un acto, salta al marcador `-listo` o abre la **siguiente escena**:
 
-0. **Qué pasa detrás de la IA** → entrenamiento / inferencia / escala
-1. **Entrenamiento (ventanas)** → corpus → token a token (teacher forcing) → pesos
-2. **Entrenamiento (classic)** → copia del demo anterior (para editar después)
-3. **Escala + costos** → Llama 3.1 GPU-hours + estimaciones Stanford/Epoch
-4. ¿Cuánto cuesta un servidor de $5,000? → pie chart TCO (`src/data/tcoSlices.ts`)
-5. PUE (100 kW → 156 kW)
-6. Utilización vs PUE
-7. Consolidación / SO distintos → puente a virtualización
+| Escena | Archivo | Cierre sugerido |
+|--------|---------|-----------------|
+| 1 · IA | `paso0-01-ia.tsx` | `presentacion-inicio` → `ia-inferencia-listo` |
+| 2 · Paralelo (CPU/GPU) | `paso0-02-paralelo-costos.tsx` | `hardware-necesario-inicio` → `ia-gpu-paralelo` |
+| 3 · Servidor | `paso0-03-servidor.tsx` | `infraestructura-inicio` → … → `virt-hypervisor-listo` |
+| 4 · vGPU / GPU / MIG | `paso0-04-virt-gpu.tsx` | `virt-gpu-listo` |
+| 5 · Costos LLM | `paso0-03-costos-llm.tsx` | `costos-inicio` → `ia-costos-train-vs-infer-deepseek-listo` |
+| 6 · Uso energético | `paso0-04-uso-energetico.tsx` | … → `energia-carbon-aware-listo` |
+| 7 · Agua (LBNL + USGS) | `paso0-03-agua.tsx` | `agua-calor-listo` … `agua-comparacion-listo` |
+| 8 · Ambiente y uso IA | `paso0-05-ambiente.tsx` | `uso-ia-pesados-listo` |
+
+Secciones: `sections/paso0-servidor-pue.tsx` (acto 3), `sections/paso0-gpu.tsx` (acto 4).
+
+Shell compartido: `src/scenes/shared/paso0-shell.tsx`. Duraciones de ensayo: `src/scenes/shared/presentation-timing.ts`.
 
 Las **fuentes** aparecen en un pie por diapositiva (`src/sources.ts` / `SOURCES.md`). Investigación IA: [hilo entrenamiento/inferencia](https://chatgpt.com/share/6abfe22c-cbe8-83e8-93c8-35b0aa003559).
 

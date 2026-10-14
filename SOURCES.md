@@ -26,7 +26,7 @@ CapEx y Llama USD **no** los publica Meta/DeepSeek; coste de entrenar DeepSeek s
 
 | ID | Uso en la charla | Enlace |
 |----|------------------|--------|
-| `berkeley2024` | Consumo de DC en EE. UU. (~176 TWh 2023) | https://eta.lbl.gov/publications/united-states-data-center-energy-usage-report |
+| `berkeley2024` | Consumo de DC en EE. UU. (~176 TWh 2023) | https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report |
 | `berkeley2026` | Proyecciones 2030 (escenarios, incertidumbre IA) | https://eta.lbl.gov/ |
 | `doe` | PUE: **1.6** estándar, **1.4** bueno, **1.1** mejor; consolidar workloads en menos servidores | https://www.energy.gov/sites/default/files/2024-07/best-practice-guide-data-center-design.pdf |
 | `uptime2018` | Serie temprana PUE (2.5 → 1.98 → 1.65 → 1.58) | https://intelligence.uptimeinstitute.com/sites/default/files/mammoth/2023/09/12/Keynote%20report%2013_UI%20Global%20Data%20Center%20Survey%202018.pdf |
@@ -121,18 +121,60 @@ En la comparación final se cruza con `doe` (consolidar cargas en menos servidor
 
 | ID | Uso en la charla | Enlace |
 |----|------------------|--------|
-| `berkeley2024` | Electricidad EE. UU.: ~58–60 TWh (2014–16), 76 TWh (2018), 176 TWh (2023) | https://eta-publications.lbl.gov/publications/united-states-data-center-energy-usage-report |
+| `berkeley2024` | LBNL-2001637: electricidad, agua, emisiones (EE. UU., 2014–2023 + escenarios 2028) | https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report |
+| `lbnlUsDc2024Pdf` | Mismo informe (PDF, dic. 2024) | PDF en `eta-publications.lbl.gov` |
 | `berkeley2026` | Actualización 2025 del informe LBNL (proyecciones; no en gráfica) | https://www.energy.gov/documents/united-states-data-center-energy-usage-report-2025-update |
-| `lbnlDcWater2024` | Agua directa ~21,2 mil M L (2014) → ~66 mil M L (2023); indirecta ~800 mil M L (2023) | https://eta-publications.lbl.gov/publications/united-states-data-center-energy |
+| `lbnlDcWater2024` | Agua directa 21,2 → 66 mil M L (2014→2023, Fig. 5.9); indirecta «casi 800» mil M L (2023, Fig. 5.10) | mismo informe LBNL-2001637 |
+| `usgsWaterUseTerminology` | Extracción vs uso consumptivo; return flow | https://www.usgs.gov/mission-areas/water-resources/science/water-use-terminology |
+| `wriAqueductWaterRisk` | Estrés hídrico por cuenca (contexto local) | https://www.wri.org/aqueduct |
 | `leiDcWaterReview2025` | Variabilidad por workload/sitio; no hay ml/prompt universal | https://doi.org/10.1016/j.resconrec.2024.107876 |
 | `liMakingAiLessThirsty` | Origen del mito “botella por prompt” (modelo GPT-3, no medición en vivo) | https://arxiv.org/abs/2304.03271 |
 | `microsoftDatacenterWue` | WUE global 0,30 → 0,27 L/kWh IT (FY24→FY25) | https://datacenters.microsoft.com/sustainability/efficiency/ |
 | `microsoftWaterStewardship2026` | Intensidad histórica ~2,3 → 0,27 L/kWh; agua reciclada en sitios clave | https://blogs.microsoft.com/blog/2026/06/24/inside-microsofts-two-decade-push-to-cut-water-intensity-while-scaling-for-growth/ |
 | `googleDatacenterWater` | Estrés hídrico local, agua reciclada, meta repone > consume (2030) | https://datacenters.google/water/ |
 | `googleGeminiEnvMetrics2025` | Ejemplo medido prompt mediano Gemini Apps (Wh/agua) — no universal | https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini |
-| `garCarbonAwareRouting` | Slide `ambiente-carbon-aware` (después de Microsoft/Google) | https://arxiv.org/abs/2605.11603 |
+| `garCarbonAwareRouting` | Slide `energia-carbon-aware` (fin de `paso0-04-uso-energetico`, tras gráficas Meta/Google) | https://arxiv.org/abs/2605.11603 |
 
-Gráficas: `src/data/dcWaterTrend.ts`, `src/data/dcEnergyTrend.ts` — solo puntos publicados en LBNL 2024.
+Gráficas: `src/data/dcWaterTrend.ts`, `src/data/dcEnergyTrend.ts`, `src/data/lbnlUsDc2024.ts` — LBNL-2001637 (modelo, no medición universal). Agua directa 2014–2023: totales anuales de la Fig. 5.9 vía `scripts/extract-lbnl-fig59.py` (salida `scripts/fig59-extract.json`; PDF local `tmp-lbnl-2001637.pdf`).
+
+## Agua (`paso0-03-agua.tsx`)
+
+Marcadores: `agua-calor-gancho` → `agua-calor-listo` → `agua-directa-crecimiento` → `agua-directa-crecimiento-serie` → `agua-directa-crecimiento-listo` → `agua-indirecta-crecimiento` → `agua-indirecta-crecimiento-listo` → `agua-directa-indirecta-pie` → `agua-directa-indirecta-pie-listo` → `agua-hecho-1` … `agua-hecho-4` → `agua-comparacion-directa-indirecta` → `agua-comparacion-listo`.
+
+| ID | Uso |
+|----|-----|
+| `lbnlFigure59DirectWater` | Gráfica agua directa (21,2 → 66 mil M L, 2014→2023) |
+| `lbnlFigure510IndirectWater` | Indirecto ~800 mil M L (2023); intensidad 4,52 L/kWh |
+| `dcdLbnlWater2024` | Resumen periodístico alineado al informe DOE/LBNL |
+
+Datos: `src/data/dcWaterTrend.ts` (directo, Fig. 5.9 extraída), `src/data/dcWaterDirectGrowth.ts`, `src/data/dcIndirectWaterTrend.ts` (indirecto interanual calibrado a TWh × 800/176 — ver comentario en archivo).
+
+Intro `agua-calor-*`: diagrama DC + termómetro (calor genérico del cómputo, no solo IA).
+
+| Hecho | Pie de slide (principal) |
+|-------|---------------------------|
+| 1 · Extracción ≠ consumo | `usgsWaterUseTerminology` |
+| 2 · 66 mil M L directo (2023) | `lbnlDcWater2024`, Fig. 5.9 |
+| 3 · 60→176 TWh y GPUs desde 2017 | `berkeley2024`, Fig. ES-1 / 5.5 |
+| 4 · Lugar / estrés hídrico | `wriAqueductWaterRisk`, `leiDcWaterReview2025`, `googleDatacenterWater` |
+
+## Uso energético global (`paso0-04-uso-energetico.tsx`)
+
+| ID | Uso en la charla | Enlace |
+|----|------------------|--------|
+| `ieaEnergyAi2025` | **415 TWh** (2024), **~1,5 %** electricidad mundial; contexto 2017→2025 | https://www.iea.org/reports/energy-and-ai/executive-summary |
+| `ieaEnergyAiDemand` | Crecimiento ~**12 %/año** (últimos 5 años); contexto demanda IA | https://www.iea.org/reports/energy-and-ai/energy-demand-from-aI |
+| `ieaKeyQuestionsEnergyAi2026` | **485 TWh** (2025), **~950 TWh** (2030, ~3 % global) | https://www.iea.org/reports/key-questions-on-energy-and-ai/executive-summary |
+| `ieaDcConsumptionChart` | Gráfica IEA 2015–2025 (datos no descargables) | https://www.iea.org/data-and-statistics/charts/data-centre-electricity-consumption-2015-2025 |
+| `metaEnvironmentalDataIndex2025` | Meta DC: **6,97 → 18,06 TWh** (2020–2024) | PDF Environmental Data Index |
+| `googleEnvironmentalReport2025` | Google DC 2020–2024 (tabla) | PDF 2025 Environmental Report |
+| `googleEnvironmentalReport2026` | Google DC **42,4 TWh (2025)** | Informe 2026 |
+| `googleFy2025AssuranceDc` | MWh auditados FY2025 (42 415 800 DC) | Assurance letter |
+| `googleEnvReportBlog2025` | Narrativa: +27 % electricidad DC 2024, emisiones DC −12 % | https://blog.google/.../environmental-report-2025/ |
+
+Datos: `src/data/globalDcEnergyTrend.ts` (anclas IEA). `src/data/hyperscalerDcEnergy.ts`: **Google** 2020–2024 (Environmental Report 2025); **Meta** 2010–2016 (Sustainability Data Disclosure) + 2017–2024 (Environmental Data Index).
+
+Marcadores: … → `energia-meta-grafica` → `energia-meta-grafica-serie` → `energia-meta-grafica-inflection` (línea vertical 2017) → `energia-carbon-aware` → `energia-carbon-aware-listo`.
 
 ## Uso de IA (`uso-ia-*`, después de ambiente)
 

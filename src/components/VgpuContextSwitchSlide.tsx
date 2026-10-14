@@ -1,6 +1,12 @@
 import {Circle, Layout, Line, Rect, Spline, Txt} from '@motion-canvas/2d';
 import type {Reference} from '@motion-canvas/core';
 import {theme} from '../theme';
+import {
+  PLUG_FLOW_DURATION_SEC,
+  PLUG_FLOW_RECONNECT_SEC,
+  PLUG_FLOW_STEP_SEC,
+  GPU_VM_PLUG_FLOW_SEC as TIMING_GPU_VM_PLUG_FLOW_SEC,
+} from '../scenes/shared/presentation-timing';
 
 /** Diagrama CPU (layout estático; animación después). */
 const CPU = {
@@ -99,11 +105,11 @@ export function cpuPlugBusJoint(plugIndex: number): {
 /** Longitud de un ciclo de `lineDashOffset` (flujo vCPU → pCPU). */
 export const CPU_PLUG_FLOW_DASH_CYCLE = 40;
 /** Duración de un pulso en la escena (segundos). */
-export const CPU_PLUG_FLOW_STEP_SEC = 1.05;
+export const CPU_PLUG_FLOW_STEP_SEC = PLUG_FLOW_STEP_SEC;
 /** Segundos totales de flujo en virt-gpu-cpu-titulo. */
-export const CPU_PLUG_FLOW_DURATION_SEC = 3;
+export const CPU_PLUG_FLOW_DURATION_SEC = PLUG_FLOW_DURATION_SEC;
 /** Flujo tras reconectar VM A vCPU4 / VM B vCPU1. */
-export const CPU_PLUG_FLOW_RECONNECT_SEC = 2.5;
+export const CPU_PLUG_FLOW_RECONNECT_SEC = PLUG_FLOW_RECONNECT_SEC;
 const CPU_PLUG_FLOW_DASH = [16, 24] as const;
 export const CPU_PLUG_FLOW_LINE_WIDTH = 12;
 export const CPU_PLUG_FLOW_LAYER_OPACITY = 0.6;
@@ -430,7 +436,7 @@ export const GPU_PACKET_MOVE_GB_SEC = 3.6;
 export const GPU_VM_PLUG_COUNT = 2;
 export const GPU_VM1_PLUG_COLOR = theme.magenta;
 export const GPU_VM2_PLUG_COLOR = theme.cyan;
-export const GPU_VM_PLUG_FLOW_SEC = 2.5;
+export const GPU_VM_PLUG_FLOW_SEC = TIMING_GPU_VM_PLUG_FLOW_SEC;
 
 export function gpuVm1PlugAnchor(): [number, number] {
   return [-GPU.vmX, GPU.vmRowY - GPU.vmH / 2 + 14];
@@ -687,11 +693,9 @@ export type VgpuContextSwitchSlideProps = {
   gpuVm1Ref: Reference<Layout>;
   gpuVm2Ref: Reference<Layout>;
   gpuVm1BodyRef: Reference<Rect>;
-  gpuVm1PortRef: Reference<Rect>;
   gpuVm1ActiveLabelRef: Reference<Txt>;
   gpuVm1LabelRef: Reference<Txt>;
   gpuVm2BodyRef: Reference<Rect>;
-  gpuVm2PortRef: Reference<Rect>;
   gpuVm2ActiveLabelRef: Reference<Txt>;
   gpuVm2LabelRef: Reference<Txt>;
   gpuVm2TaskRef: Reference<Layout>;
@@ -730,11 +734,9 @@ export function VgpuContextSwitchSlide({
   gpuVm1Ref,
   gpuVm2Ref,
   gpuVm1BodyRef,
-  gpuVm1PortRef,
   gpuVm1ActiveLabelRef,
   gpuVm1LabelRef,
   gpuVm2BodyRef,
-  gpuVm2PortRef,
   gpuVm2ActiveLabelRef,
   gpuVm2LabelRef,
   gpuVm2TaskRef,
@@ -1212,15 +1214,6 @@ export function VgpuContextSwitchSlide({
             fill={theme.black}
             y={-8}
           />
-          <Rect
-            ref={gpuVm1PortRef}
-            width={22}
-            height={22}
-            y={-GPU.vmH / 2 + 20}
-            fill={GPU_VM1_PLUG_COLOR}
-            stroke={theme.black}
-            lineWidth={2}
-          />
           <Txt
             ref={gpuVm1ActiveLabelRef}
             text="activa"
@@ -1249,16 +1242,6 @@ export function VgpuContextSwitchSlide({
             fontSize={24}
             fill={theme.black}
             y={0}
-          />
-          <Rect
-            ref={gpuVm2PortRef}
-            width={22}
-            height={22}
-            y={-GPU.vmH / 2 + 20}
-            fill={GPU_VM2_PLUG_COLOR}
-            stroke={theme.black}
-            lineWidth={2}
-            opacity={0}
           />
           <Txt
             ref={gpuVm2ActiveLabelRef}

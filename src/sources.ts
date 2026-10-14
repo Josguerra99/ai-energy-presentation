@@ -118,8 +118,13 @@ export const sources: Record<string, SourceRef> = {
   },
   berkeley2024: {
     id: 'berkeley2024',
-    short: 'Berkeley Lab, US DC energy (2024)',
-    url: 'https://eta.lbl.gov/publications/united-states-data-center-energy-usage-report',
+    short: 'LBNL LBNL-2001637, 2024 U.S. Data Center Energy Usage Report',
+    url: 'https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report',
+  },
+  lbnlUsDc2024Pdf: {
+    id: 'lbnlUsDc2024Pdf',
+    short: 'LBNL-2001637 report PDF (Dec 2024)',
+    url: 'https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf',
   },
   berkeley2026: {
     id: 'berkeley2026',
@@ -218,8 +223,33 @@ export const sources: Record<string, SourceRef> = {
   },
   lbnlDcWater2024: {
     id: 'lbnlDcWater2024',
-    short: 'LBNL 2024 DC report — direct/indirect water (EE. UU.)',
-    url: 'https://eta-publications.lbl.gov/publications/united-states-data-center-energy',
+    short: 'LBNL 2024 — direct/indirect water (Fig. 5.9–5.10, EE. UU.)',
+    url: 'https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report',
+  },
+  usgsWaterUseTerminology: {
+    id: 'usgsWaterUseTerminology',
+    short: 'USGS, water-use terminology (withdrawal vs consumptive use)',
+    url: 'https://www.usgs.gov/mission-areas/water-resources/science/water-use-terminology',
+  },
+  wriAqueductWaterRisk: {
+    id: 'wriAqueductWaterRisk',
+    short: 'WRI Aqueduct — water risk & stress by basin',
+    url: 'https://www.wri.org/aqueduct',
+  },
+  dcdLbnlWater2024: {
+    id: 'dcdLbnlWater2024',
+    short: 'DCD / LBNL 2024 — 21,2→66 mil M L directo (2014→2023)',
+    url: 'https://www.datacenterdynamics.com/en/news/doe-data-centers-consumed-44-of-us-power-in-2023-could-hit-12-by-2028/',
+  },
+  lbnlFigure59DirectWater: {
+    id: 'lbnlFigure59DirectWater',
+    short: 'LBNL-2001637 Fig. 5.9 — direct water by DC type (2014–2028)',
+    url: 'https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf',
+  },
+  lbnlFigure510IndirectWater: {
+    id: 'lbnlFigure510IndirectWater',
+    short: 'LBNL-2001637 Fig. 5.10 — indirect water & grid intensity (2023)',
+    url: 'https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf',
   },
   leiDcWaterReview2025: {
     id: 'leiDcWaterReview2025',
@@ -265,6 +295,61 @@ export const sources: Record<string, SourceRef> = {
     id: 'garCarbonAwareRouting',
     short: 'GAR, routing carbon-aware para inferencia LLM (arXiv)',
     url: 'https://arxiv.org/abs/2605.11603',
+  },
+  ieaEnergyAi2025: {
+    id: 'ieaEnergyAi2025',
+    short: 'IEA, Energy and AI (2025) — 415 TWh DC, ~1,5 % global',
+    url: 'https://www.iea.org/reports/energy-and-ai/executive-summary',
+  },
+  ieaEnergyAiDemand: {
+    id: 'ieaEnergyAiDemand',
+    short: 'IEA, Energy demand from AI — demanda eléctrica de data centers',
+    url: 'https://www.iea.org/reports/energy-and-ai/energy-demand-from-aI',
+  },
+  ieaKeyQuestionsEnergyAi2026: {
+    id: 'ieaKeyQuestionsEnergyAi2026',
+    short: 'IEA, Key Questions on Energy and AI (2026) — 485 TWh 2025, ~950 TWh 2030',
+    url: 'https://www.iea.org/reports/key-questions-on-energy-and-ai/executive-summary',
+  },
+  ieaDcConsumptionChart: {
+    id: 'ieaDcConsumptionChart',
+    short: 'IEA chart, data centre electricity 2015–2025',
+    url: 'https://www.iea.org/data-and-statistics/charts/data-centre-electricity-consumption-2015-2025',
+  },
+  metaEnvironmentalDataIndex2025: {
+    id: 'metaEnvironmentalDataIndex2025',
+    short: 'Meta, 2025 Environmental Data Index (MWh data centers)',
+    url: 'https://sustainability.atmeta.com/wp-content/uploads/2025/10/Meta_2025-Environmental-Data-Index.pdf',
+  },
+  metaSustainabilityData2016: {
+    id: 'metaSustainabilityData2016',
+    short: 'Meta, 2016 Sustainability Data Disclosure (DC MWh 2011–2016)',
+    url: 'https://sustainability.atmeta.com/wp-content/uploads/2023/04/2016-Facebook-Sustainability-Data-Disclosure.pdf',
+  },
+  metaSustainabilityData2015: {
+    id: 'metaSustainabilityData2015',
+    short: 'Meta, 2015 Sustainability Data Disclosure (DC MWh 2010–2014)',
+    url: 'https://sustainability.atmeta.com/wp-content/uploads/2023/04/2015-Facebook-Sustainability-Data-Disclosure.pdf',
+  },
+  googleEnvironmentalReport2025: {
+    id: 'googleEnvironmentalReport2025',
+    short: 'Google, 2025 Environmental Report (electricidad data centers)',
+    url: 'https://www.gstatic.com/gumdrop/sustainability/google-2025-environmental-report.pdf',
+  },
+  googleEnvironmentalReport2026: {
+    id: 'googleEnvironmentalReport2026',
+    short: 'Google, 2026 Environmental Report — DC 42,4 TWh (2025)',
+    url: 'https://sustainability.google/reports/google-2026-environmental-report/',
+  },
+  googleFy2025AssuranceDc: {
+    id: 'googleFy2025AssuranceDc',
+    short: 'Alphabet FY2025 assurance — data centers 42 415 800 MWh',
+    url: 'https://sustainability.google/files/alphabet-fy2025-environmental-indicators-assurance-letter/',
+  },
+  googleEnvReportBlog2025: {
+    id: 'googleEnvReportBlog2025',
+    short: 'Google blog, Environmental Report 2025 (emisiones vs demanda DC)',
+    url: 'https://blog.google/company-news/outreach-and-initiatives/sustainability/environmental-report-2025/',
   },
 };
 
