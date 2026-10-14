@@ -45,7 +45,6 @@ import {
 import {dcEnergyTrend} from '../data/dcEnergyTrend';
 import {dcWaterTrend} from '../data/dcWaterTrend';
 import {
-  CarbonAwareWorkshopBridgeSlide,
   HeavyLlmWhenSlide,
   LighterModelsSlide,
   RightToolIntroSlide,

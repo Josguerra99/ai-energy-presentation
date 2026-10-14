@@ -37,8 +37,8 @@ En **PRESENT**, elige la escena en el editor y avanza con **Espacio** dentro de 
 | 4 · vGPU / GPU / MIG | `paso0-04-virt-gpu.tsx` | `virt-gpu-listo` |
 | 5 · Costos LLM | `paso0-03-costos-llm.tsx` | `costos-inicio` → `ia-costos-train-vs-infer-deepseek-listo` |
 | 6 · Uso energético | `paso0-04-uso-energetico.tsx` | … → `energia-carbon-aware-listo` |
-| 7 · Agua (LBNL + USGS) | `paso0-03-agua.tsx` | `agua-calor-listo` … `agua-comparacion-listo` |
-| 8 · Ambiente y uso IA | `paso0-05-ambiente.tsx` | `uso-ia-pesados-listo` |
+| 7 · Agua (LBNL + operadores) | `paso0-03-agua.tsx` | `agua-calor-listo` … `agua-enfriamiento-tipos-listo` → `agua-evaporacion-local` → `agua-google-reutilizada` → `agua-microsoft-circuito-cerrado` → `agua-listo` |
+| 8 · Recomendaciones | `paso0-05-recomendaciones.tsx` | `recomendaciones-inicio` → `recomendaciones-listo` |
 
 Secciones: `sections/paso0-servidor-pue.tsx` (acto 3), `sections/paso0-gpu.tsx` (acto 4).
 

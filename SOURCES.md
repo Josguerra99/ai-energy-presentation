@@ -117,7 +117,7 @@ En la comparación final se cruza con `doe` (consolidar cargas en menos servidor
 | `awsEksMig` | Cuándo MIG vs time-slicing; NCCL/P2P; reutilizar GPU post-entrenamiento | https://docs.aws.amazon.com/eks/latest/userguide/device-management-nvidia-mig.html |
 | `thunderComputeGpuTcp` | GPU-over-TCP: CUDA remoto, detach idle, ~10–20 ms reattach | https://www.thundercompute.com/blog/how-thunder-compute-works-gpu-over-tcp |
 
-## Agua y energía (slides finales `ambiente-*`)
+## Agua y energía (LBNL / hyperscalers)
 
 | ID | Uso en la charla | Enlace |
 |----|------------------|--------|
@@ -130,16 +130,25 @@ En la comparación final se cruza con `doe` (consolidar cargas en menos servidor
 | `leiDcWaterReview2025` | Variabilidad por workload/sitio; no hay ml/prompt universal | https://doi.org/10.1016/j.resconrec.2024.107876 |
 | `liMakingAiLessThirsty` | Origen del mito “botella por prompt” (modelo GPT-3, no medición en vivo) | https://arxiv.org/abs/2304.03271 |
 | `microsoftDatacenterWue` | WUE global 0,30 → 0,27 L/kWh IT (FY24→FY25) | https://datacenters.microsoft.com/sustainability/efficiency/ |
+| `microsoftZeroWaterEvapCooling2024` | Diseño DC propios: cero evaporación, lazo cerrado, pilotos 2026 | https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/12/09/sustainable-by-design-next-generation-datacenters-consume-zero-water-for-cooling/ |
+| `microsoftDatacenterLiquidCooling2024` | Cold plates, Sidekick (Maia), estrategia hídrica | https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/07/25/sustainable-by-design-transforming-datacenter-water-efficiency/ |
+| `microsoftNatureCoolingLifecycle2025` | LCA enfriamiento: cold plates vs aire (agua/GEI) | https://news.microsoft.com/source/features/sustainability/microsoft-quantifies-environmental-impacts-of-datacenter-cooling-from-cradle-to-grave-in-new-nature-study/ |
+| `dcdMicrosoftClosedLoop2024` | Resumen prensa: Phoenix / Mt. Pleasant, online ~2027 | https://www.datacenterdynamics.com/en/news/microsofts-upcoming-data-centers-to-use-closed-loop-zero-water-evaporation-design/ |
 | `microsoftWaterStewardship2026` | Intensidad histórica ~2,3 → 0,27 L/kWh; agua reciclada en sitios clave | https://blogs.microsoft.com/blog/2026/06/24/inside-microsofts-two-decade-push-to-cut-water-intensity-while-scaling-for-growth/ |
 | `googleDatacenterWater` | Estrés hídrico local, agua reciclada, meta repone > consume (2030) | https://datacenters.google/water/ |
+| `googleWaterStewardship2023` | Compromisos agua; Douglas County reutilizada | https://blog.google/company-news/outreach-and-initiatives/sustainability/new-water-stewardship-commitments/ |
+| `googleDouglasReuseWired2012` | Sistema sidestream WSA → torres Google | https://www.wired.com/2012/03/google-sewer-water/ |
+| `trellisGoogleDcWater2022` | 422 M gal retirados vs 13,2 M potables (2021) | https://trellis.net/article/sip-or-guzzle-heres-how-googles-data-centers-use-water/ |
 | `googleGeminiEnvMetrics2025` | Ejemplo medido prompt mediano Gemini Apps (Wh/agua) — no universal | https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini |
-| `garCarbonAwareRouting` | Slide `energia-carbon-aware` (fin de `paso0-04-uso-energetico`, tras gráficas Meta/Google) | https://arxiv.org/abs/2605.11603 |
+| `garCarbonAwareRouting` | Contexto routing / carbon-aware (escena energía) | https://arxiv.org/abs/2605.11603 |
+| `carbonAwareSdk` | Nota bajo «Programado ~15:00» — pronósticos y ventana óptima | https://github.com/microsoft/carbon-aware-sdk |
+| `carbonAwareScheduler` | Misma nota — scheduling multi-región (Azure, etc.) | https://docs.carbonaware.dev/scheduler/ |
 
 Gráficas: `src/data/dcWaterTrend.ts`, `src/data/dcEnergyTrend.ts`, `src/data/lbnlUsDc2024.ts` — LBNL-2001637 (modelo, no medición universal). Agua directa 2014–2023: totales anuales de la Fig. 5.9 vía `scripts/extract-lbnl-fig59.py` (salida `scripts/fig59-extract.json`; PDF local `tmp-lbnl-2001637.pdf`).
 
 ## Agua (`paso0-03-agua.tsx`)
 
-Marcadores: `agua-calor-gancho` → `agua-calor-listo` → `agua-directa-crecimiento` → `agua-directa-crecimiento-serie` → `agua-directa-crecimiento-listo` → `agua-indirecta-crecimiento` → `agua-indirecta-crecimiento-listo` → `agua-directa-indirecta-pie` → `agua-directa-indirecta-pie-listo` → `agua-hecho-1` … `agua-hecho-4` → `agua-comparacion-directa-indirecta` → `agua-comparacion-listo`.
+Marcadores: … → `agua-enfriamiento-tipos-listo` → `agua-evaporacion-local` → `agua-google-reutilizada` → `agua-microsoft-circuito-cerrado` → `agua-listo`.
 
 | ID | Uso |
 |----|-----|
@@ -151,12 +160,11 @@ Datos: `src/data/dcWaterTrend.ts` (directo, Fig. 5.9 extraída), `src/data/dcWat
 
 Intro `agua-calor-*`: diagrama DC + termómetro (calor genérico del cómputo, no solo IA).
 
-| Hecho | Pie de slide (principal) |
-|-------|---------------------------|
-| 1 · Extracción ≠ consumo | `usgsWaterUseTerminology` |
-| 2 · 66 mil M L directo (2023) | `lbnlDcWater2024`, Fig. 5.9 |
-| 3 · 60→176 TWh y GPUs desde 2017 | `berkeley2024`, Fig. ES-1 / 5.5 |
-| 4 · Lugar / estrés hídrico | `wriAqueductWaterRisk`, `leiDcWaterReview2025`, `googleDatacenterWater` |
+| Slide | Pie (principal) |
+|-------|------------------|
+| Evaporación local vs ciclo global | `usgsWaterUseTerminology`, `wriAqueductWaterRisk`, `leiDcWaterReview2025` |
+| Google agua reutilizada (Douglas County) | `googleDatacenterWater`, `googleWaterStewardship2023`, `googleDouglasReuseWired2012`, `trellisGoogleDcWater2022` |
+| Microsoft circuito cerrado | `microsoftZeroWaterEvapCooling2024`, `microsoftDatacenterLiquidCooling2024`, `microsoftNatureCoolingLifecycle2025`, `dcdMicrosoftClosedLoop2024` |
 
 ## Uso energético global (`paso0-04-uso-energetico.tsx`)
 
@@ -174,15 +182,17 @@ Intro `agua-calor-*`: diagrama DC + termómetro (calor genérico del cómputo, n
 
 Datos: `src/data/globalDcEnergyTrend.ts` (anclas IEA). `src/data/hyperscalerDcEnergy.ts`: **Google** 2020–2024 (Environmental Report 2025); **Meta** 2010–2016 (Sustainability Data Disclosure) + 2017–2024 (Environmental Data Index).
 
-Marcadores: … → `energia-meta-grafica` → `energia-meta-grafica-serie` → `energia-meta-grafica-inflection` (línea vertical 2017) → `energia-carbon-aware` → `energia-carbon-aware-listo`.
+Marcadores: … → `energia-meta-grafica-inflection` → `energia-grid-carbon-impact` → `energia-carbon-aware` → `energia-carbon-aware-espera` → `energia-carbon-aware-programado` → `energia-carbon-aware-listo`.
 
-## Uso de IA (`uso-ia-*`, después de ambiente)
+## Recomendaciones (`paso0-05-recomendaciones.tsx`)
+
+Marcadores: `recomendaciones-inicio` → `recomendaciones-necesitamos-ia` → `recomendaciones-modelo-adecuado` → `recomendaciones-routing` → `recomendaciones-pregunta-correcta` → `recomendaciones-listo`.
 
 | ID | Uso en la charla | Enlace |
 |----|------------------|--------|
-| `chiSmallerModel2025` | Elegir modelos más pequeños; a veces no hace falta ML | https://dl.acm.org/doi/10.1145/3706598.3713240 |
-| `llmEnergyAccuracy2025` | Modelos medianos vs gigantes en energía de inferencia | https://dl.acm.org/doi/10.1145/3744255.3811741 |
-| `anthropicPricing` / `openAiPricing` | Referencia de APIs “grandes” (coste por token, no métrica ambiental) | ver `sources.ts` |
+| `chiSmallerModel2025` | ¿Hace falta IA? / modelo adecuado al problema | https://dl.acm.org/doi/10.1145/3706598.3713240 |
+| `llmEnergyAccuracy2025` | LLM grande vs clasificador / modelo pequeño | https://dl.acm.org/doi/10.1145/3744255.3811741 |
+| `frugalGpt2023` | Model routing (slide arquitectura) | https://arxiv.org/abs/2305.05176 |
 
 ## Notas para el pie de diapositiva
 

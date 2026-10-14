@@ -22,10 +22,14 @@ function WaterFactSlide({
   index,
   title,
   body,
+  bodyFontSize = 23,
+  bodyLineHeight = 36,
 }: {
   index: number;
   title: string;
   body: string;
+  bodyFontSize?: number;
+  bodyLineHeight?: number;
 }) {
   return (
     <Layout layout={false} width={1680} height={WATER_SLIDE_LAYOUT_H}>
@@ -53,13 +57,14 @@ function WaterFactSlide({
       <Txt
         text={body}
         fontFamily={theme.bodyFont}
-        fontSize={23}
+        fontSize={bodyFontSize}
         fontWeight={500}
         fill={theme.black}
         textAlign="left"
+        offsetX={-1}
         width={1120}
-        lineHeight={36}
-        x={0}
+        lineHeight={bodyLineHeight}
+        x={-560}
         y={FACT_BODY_Y}
       />
     </Layout>
@@ -69,7 +74,7 @@ function WaterFactSlide({
 export function WaterFact2WithdrawalVsConsumptionSlide() {
   return (
     <WaterFactSlide
-      index={1}
+      index={2}
       title="Extraer agua no equivale a consumirla"
       body="USGS distingue extracción (withdrawal) del agua retirada de una fuente y uso consumptivo (consumptive use): la parte que evapora, se incorpora a productos o no vuelve al entorno inmediato. Mucha extracción en centrales o torres de refrigeración regresa como return flow. Comparar cifras sin el mismo marco confunde el debate."
     />
@@ -79,7 +84,7 @@ export function WaterFact2WithdrawalVsConsumptionSlide() {
 export function WaterFact3MeasurableUsSlide() {
   return (
     <WaterFactSlide
-      index={2}
+      index={3}
       title="Consumo directo medible y significativo (EE. UU.)"
       body={`El informe LBNL-2001637 estima consumo directo en sitio de unos ${US_DC_WATER_DIRECT_BIL_L_2023} mil millones de litros en ${US_DC_WATER_FOOTPRINT_YEAR} (Fig. 5.9) — modelo bottom-up, no lecturas de contador en cada edificio. Cubre todos los centros de datos del país; en 2023 hyperscale y colocation concentran ~84 % de ese directo.`}
     />
@@ -91,7 +96,7 @@ export function WaterFact4EnergyGrowthAiSlide() {
   const twh2023 = LBNL_US_DC_ENERGY_TWH[2023];
   return (
     <WaterFactSlide
-      index={3}
+      index={4}
       title="La IA acelera el crecimiento energético (y presiona el agua)"
       body={`LBNL sitúa la electricidad de centros de datos en ~${twh2014} TWh/año (2014–2016, estable) y ${twh2023} TWh en ${US_DC_WATER_FOOTPRINT_YEAR} (~4,4 % del total nacional). Desde ${LBNL_US_DC_GPU_AI_INFLECTION_YEAR} el stock de servidores con GPU para IA pesa lo bastante como para reactivar el crecimiento. Más kWh implica más refrigeración directa y más huella indirecta vía red eléctrica (~${LBNL_US_DC_INDIRECT_WATER_L_PER_KWH_2023} L/kWh indirectos de media nacional en 2023).`}
     />
@@ -101,7 +106,7 @@ export function WaterFact4EnergyGrowthAiSlide() {
 export function WaterFact5LocationMattersSlide() {
   return (
     <WaterFactSlide
-      index={4}
+      index={5}
       title="El impacto depende del lugar"
       body="LBNL asigna intensidades hídricas y de emisiones por condado según el mix de la red (Fig. 5.10): un litro contabilizado en una cuenca con estrés hídrico no equivale a uno en una región húmeda, ni necesariamente a agua potable. Operadores evalúan riesgo local (p. ej. WRI Aqueduct) y usan agua reciclada o no potable donde publican políticas."
     />

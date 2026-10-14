@@ -9,7 +9,7 @@ import paso0VirtGpu from './scenes/paso0-04-virt-gpu?scene';
 import paso0UsoEnergetico from './scenes/paso0-04-uso-energetico?scene';
 import paso0CostosLlm from './scenes/paso0-03-costos-llm?scene';
 import paso0Agua from './scenes/paso0-03-agua?scene';
-import paso0Ambiente from './scenes/paso0-05-ambiente?scene';
+import paso0Recomendaciones from './scenes/paso0-05-recomendaciones?scene';
 
 export default makeProject({
   scenes: [
@@ -20,6 +20,6 @@ export default makeProject({
     paso0CostosLlm,
     paso0UsoEnergetico,
     paso0Agua,
-    paso0Ambiente,
+    paso0Recomendaciones,
   ],
 });

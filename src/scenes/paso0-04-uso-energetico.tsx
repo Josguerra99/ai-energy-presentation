@@ -1,12 +1,17 @@
-import {Circle, Layout, Line, Txt, makeScene2D} from '@motion-canvas/2d';
-import {all, beginSlide, createRef, easeOutCubic} from '@motion-canvas/core';
+import {Circle, Layout, Line, Rect, Txt, makeScene2D} from '@motion-canvas/2d';
+import {all, beginSlide, createRef, easeInOutCubic, easeOutCubic, waitFor} from '@motion-canvas/core';
+import {
+  CarbonAwareSchedulingSlide,
+  GridCarbonImpactSlide,
+  hourIndexToX,
+} from '../components/CarbonAwareSlides';
+import {GRID_CARBON_BEST_HOUR, GRID_CARBON_HOURLY, GRID_CARBON_PEAK_REQUEST_HOUR} from '../data/gridCarbonIntensityDay';
 import {
   animateGlobalDcLineDraw,
   GlobalDcEnergyGrowthChart,
   GoogleDcTrendChart,
   MetaDcTrendChart,
 } from '../components/GlobalDcEnergySlides';
-import {CarbonAwareWorkshopBridgeSlide} from '../components/SustainableAiUseSlides';
 import {globalDcEnergyTrend} from '../data/globalDcEnergyTrend';
 import {googleDcEnergyTrend, metaDcEnergyTrend} from '../data/hyperscalerDcEnergy';
 import {createPaso0Shell, loadPaso0Fonts} from './shared/paso0-shell';
@@ -125,11 +130,75 @@ export default makeScene2D(function* (view) {
   yield* scrollTo(panel => {
     panel.add(
       <Layout layout={false} width={contentW} height={contentH}>
-        <CarbonAwareWorkshopBridgeSlide />
+        <GridCarbonImpactSlide />
+      </Layout>,
+    );
+  });
+  setFooter(['berkeley2024', 'ieaEnergyAi2025']);
+  yield* beginSlide('energia-grid-carbon-impact');
+
+  const carbonBars = GRID_CARBON_HOURLY.map(() => createRef<Rect>());
+  const carbonPlannedWindow = createRef<Rect>();
+  const carbonPlannedLabel = createRef<Txt>();
+  const carbonWindow = createRef<Rect>();
+  const carbonJob = createRef<Layout>();
+  const carbonStatus = createRef<Txt>();
+  const carbonSdkHint = createRef<Txt>();
+  const carbonScheduleArrow = createRef<Line>();
+
+  yield* scrollTo(panel => {
+    panel.add(
+      <Layout layout={false} width={contentW} height={contentH}>
+        <CarbonAwareSchedulingSlide
+          hourBarRefs={carbonBars}
+          plannedWindowRef={carbonPlannedWindow}
+          plannedLabelRef={carbonPlannedLabel}
+          cleanWindowRef={carbonWindow}
+          jobRef={carbonJob}
+          statusRef={carbonStatus}
+          sdkHintRef={carbonSdkHint}
+          scheduleArrowRef={carbonScheduleArrow}
+        />
       </Layout>,
     );
   });
   setFooter(['garCarbonAwareRouting', 'berkeley2024']);
   yield* beginSlide('energia-carbon-aware');
+
+  yield* all(
+    ...carbonBars.map(bar => bar().scale.y(1, 0.9, easeOutCubic)),
+  );
+  yield* all(
+    carbonJob().opacity(1, 0.35, easeOutCubic),
+    carbonPlannedWindow().opacity(0.42, 0.35, easeOutCubic),
+    carbonPlannedLabel().opacity(1, 0.35, easeOutCubic),
+  );
+  carbonStatus().text(
+    `Plan original ~${String(GRID_CARBON_PEAK_REQUEST_HOUR).padStart(2, '0')}:00 · mix más sucio`,
+  );
+  yield* beginSlide('energia-carbon-aware-espera');
+
+  yield* all(
+    carbonScheduleArrow().opacity(0.85, 0.4, easeOutCubic),
+    carbonWindow().opacity(0.35, 0.45, easeOutCubic),
+    carbonPlannedWindow().opacity(0.18, 0.35, easeOutCubic),
+  );
+  carbonStatus().text('Posponer batch · buscando hora con mix más limpio…');
+  yield* waitFor(0.25);
+
+  const jobTargetX = hourIndexToX(GRID_CARBON_BEST_HOUR);
+  yield* all(
+    carbonJob().x(jobTargetX, 1.1, easeInOutCubic),
+    carbonJob().y(116, 1.1, easeInOutCubic),
+    carbonWindow().opacity(0.55, 0.8, easeOutCubic),
+    carbonPlannedWindow().opacity(0, 0.5, easeOutCubic),
+    carbonPlannedLabel().opacity(0, 0.4, easeOutCubic),
+  );
+  carbonStatus().text(
+    `Programado ~${String(GRID_CARBON_BEST_HOUR).padStart(2, '0')}:00 · menor intensidad de carbono (ilustrativo)`,
+  );
+  setFooter(['carbonAwareSdk', 'carbonAwareScheduler']);
+  yield* carbonSdkHint().opacity(1, 0.45, easeOutCubic);
+  yield* beginSlide('energia-carbon-aware-programado');
   yield* beginSlide('energia-carbon-aware-listo');
 });

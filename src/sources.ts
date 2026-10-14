@@ -266,6 +266,26 @@ export const sources: Record<string, SourceRef> = {
     short: 'Microsoft datacenters — PUE/WUE (FY24–FY25)',
     url: 'https://datacenters.microsoft.com/sustainability/efficiency/',
   },
+  microsoftZeroWaterEvapCooling2024: {
+    id: 'microsoftZeroWaterEvapCooling2024',
+    short: 'Microsoft Cloud Blog (dic. 2024) — cero evaporación, lazo cerrado',
+    url: 'https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/12/09/sustainable-by-design-next-generation-datacenters-consume-zero-water-for-cooling/',
+  },
+  microsoftDatacenterLiquidCooling2024: {
+    id: 'microsoftDatacenterLiquidCooling2024',
+    short: 'Microsoft Cloud Blog (jul. 2024) — cold plates y Sidekick',
+    url: 'https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/07/25/sustainable-by-design-transforming-datacenter-water-efficiency/',
+  },
+  microsoftNatureCoolingLifecycle2025: {
+    id: 'microsoftNatureCoolingLifecycle2025',
+    short: 'Microsoft / Nature (2025) — LCA de tecnologías de enfriamiento',
+    url: 'https://news.microsoft.com/source/features/sustainability/microsoft-quantifies-environmental-impacts-of-datacenter-cooling-from-cradle-to-grave-in-new-nature-study/',
+  },
+  dcdMicrosoftClosedLoop2024: {
+    id: 'dcdMicrosoftClosedLoop2024',
+    short: 'DatacenterDynamics (dic. 2024) — pilotos Phoenix y Mt. Pleasant',
+    url: 'https://www.datacenterdynamics.com/en/news/microsofts-upcoming-data-centers-to-use-closed-loop-zero-water-evaporation-design/',
+  },
   microsoftWaterStewardship2026: {
     id: 'microsoftWaterStewardship2026',
     short: 'Microsoft blog — water intensity & replenishment (FY25)',
@@ -275,6 +295,21 @@ export const sources: Record<string, SourceRef> = {
     id: 'googleDatacenterWater',
     short: 'Google — responsible water at data centers',
     url: 'https://datacenters.google/water/',
+  },
+  googleWaterStewardship2023: {
+    id: 'googleWaterStewardship2023',
+    short: 'Google blog (2023) — reutilización y utilities locales',
+    url: 'https://blog.google/company-news/outreach-and-initiatives/sustainability/new-water-stewardship-commitments/',
+  },
+  googleDouglasReuseWired2012: {
+    id: 'googleDouglasReuseWired2012',
+    short: 'WIRED (2012) — Douglas County, agua reutilizada en torres',
+    url: 'https://www.wired.com/2012/03/google-sewer-water/',
+  },
+  trellisGoogleDcWater2022: {
+    id: 'trellisGoogleDcWater2022',
+    short: 'Trellis (2022) — cifras retiro/potable Douglas County 2021',
+    url: 'https://trellis.net/article/sip-or-guzzle-heres-how-googles-data-centers-use-water/',
   },
   googleGeminiEnvMetrics2025: {
     id: 'googleGeminiEnvMetrics2025',
@@ -286,6 +321,11 @@ export const sources: Record<string, SourceRef> = {
     short: 'CHI 2025, elegir modelos más pequeños y sostenibilidad',
     url: 'https://dl.acm.org/doi/10.1145/3706598.3713240',
   },
+  frugalGpt2023: {
+    id: 'frugalGpt2023',
+    short: 'Chen et al., FrugalGPT — model routing e inferencia (2023)',
+    url: 'https://arxiv.org/abs/2305.05176',
+  },
   llmEnergyAccuracy2025: {
     id: 'llmEnergyAccuracy2025',
     short: 'ACM, inferencia LLM — trade-off energía vs precisión',
@@ -295,6 +335,16 @@ export const sources: Record<string, SourceRef> = {
     id: 'garCarbonAwareRouting',
     short: 'GAR, routing carbon-aware para inferencia LLM (arXiv)',
     url: 'https://arxiv.org/abs/2605.11603',
+  },
+  carbonAwareSdk: {
+    id: 'carbonAwareSdk',
+    short: 'Carbon Aware SDK (Microsoft / GSF) — pronóstico e intensidad por región',
+    url: 'https://github.com/microsoft/carbon-aware-sdk',
+  },
+  carbonAwareScheduler: {
+    id: 'carbonAwareScheduler',
+    short: 'CarbonAware Scheduler — API REST + Python (zonas Azure, AWS, GCP)',
+    url: 'https://docs.carbonaware.dev/scheduler/',
   },
   ieaEnergyAi2025: {
     id: 'ieaEnergyAi2025',
