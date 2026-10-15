@@ -1,4 +1,4 @@
-# Motion Canvas — notas de layout (este proyecto)
+# Motion Canvas, notas de layout (este proyecto)
 
 En la web, un `div` con hijos absolutos o un flex mal puesto suele “verse bien”. En **Motion Canvas 2D**, el layout es **flexbox explícito** y tiene reglas que explican la mayoría de los bugs que vimos.
 
@@ -50,9 +50,10 @@ El origen del nodo suele ser el **centro**. `x={-960+padding}` no es “esquina 
 Antes de dar por hecho un slide con gráfica:
 
 1. ¿Cada `Txt` de leyenda tiene `textAlign="left"` y `offsetX={-1}`?
-2. ¿Pie / barras / líneas a la **izquierda** y leyenda a la **derecha** con hueco medible (p. ej. pie termina en `PIE_X + PIE_R`, leyenda empieza en `LEGEND_X`)?
-3. ¿Título, subtítulo, cuerpo y caption tienen **y** en bandas distintas (no comparten fila)?
-4. ¿El contenedor del gráfico usa `layout={false}`?
+2. ¿Texto en tarjetas con ancho fijo está partido en **varias líneas** (`Txt` + `y`), no solo `width` + wrap?
+3. ¿Pie / barras / líneas a la **izquierda** y leyenda a la **derecha** con hueco medible (p. ej. pie termina en `PIE_X + PIE_R`, leyenda empieza en `LEGEND_X`)?
+4. ¿Título, subtítulo, cuerpo y caption tienen **y** en bandas distintas (no comparten fila)?
+5. ¿El contenedor del gráfico usa `layout={false}`?
 
 Regla Cursor: `.cursor/rules/motion-canvas-no-overlap.mdc`.
 

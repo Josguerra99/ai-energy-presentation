@@ -464,7 +464,7 @@ export function* gpuSection(ctx: Paso0SceneContext): ThreadGenerator {
 
   yield* beginSlide('virt-gpu-vgpu-contexto-vram');
   vgpuSubtitle().text(
-    'En GPU: el congelamiento va a VRAM (driver) — no hace falta RAM del host',
+    'En GPU: el congelamiento va a VRAM (driver), no hace falta RAM del host',
   );
   vgpuGpuTransferPacketLabels[0]().text(GPU_PACKET_FREEZE_LABEL);
   const pktGpuFreeze = gpuTransferPacketRoute('sm-context-vram');

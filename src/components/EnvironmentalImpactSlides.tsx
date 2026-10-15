@@ -73,7 +73,7 @@ export function WaterDcIntroSlide() {
   return (
     <TextSlide
       title="Agua y centros de datos"
-      subtitle="No es solo IA — es cómputo, calor y electricidad"
+      subtitle="No es solo IA, es cómputo, calor y electricidad"
       bullets={[
         'El modelo no “bebe” agua: la usan (o puede usar) el sitio y la red eléctrica.',
         'Más GPUs y más densidad → más calor → más necesidad de refrigeración.',
@@ -102,7 +102,7 @@ export function WaterDcWasteSlide() {
     <TextSlide
       title="“Desperdicio” y ciclo del agua"
       bullets={[
-        'Evaporar no destruye H₂O: la mueve en el ciclo — puede llover lejos y tarde.',
+        'Evaporar no destruye H₂O: la mueve en el ciclo, puede llover lejos y tarde.',
         'Consumo hidrológico = lo que no vuelve pronto a la misma cuenca disponible.',
         'El riesgo fuerte es local: sequía, comunidad, industria agrícola en la misma cuenca.',
         'No hay “ml por prompt” universal: varía órdenes de magnitud según sitio y carga.',
@@ -133,7 +133,7 @@ export function EnergyDcIntroSlide() {
       bullets={[
         '2014–2016: uso eléctrico relativamente estable (~60 TWh/año).',
         'Desde ~2017: más servidores y GPUs de IA → crecimiento acelerado.',
-        '2023: ~176 TWh (~4,4 % de la electricidad del país) — informe LBNL/DOE.',
+        '2023: ~176 TWh (~4,4 % de la electricidad del país), informe LBNL/DOE.',
         'Menos cómputo innecesario = menos electricidad, calor y presión sobre agua.',
       ]}
     />
@@ -147,7 +147,7 @@ export function HowToExplainSlide() {
       bullets={[
         '“Más cómputo → más electricidad → más calor; el agua entra al enfriar y al generar luz.”',
         '“No es magia de la IA: un data center clásico obedece la misma cadena.”',
-        '“El titular de la botella por prompt es un modelo viejo — depende del sitio.”',
+        '“El titular de la botella por prompt es un modelo viejo, depende del sitio.”',
         '“Eficiencia (PUE/WUE), agua reciclada, menos modelos gigantes donde no hacen falta.”',
       ]}
     />
@@ -181,7 +181,7 @@ export function WaterTrendChart({
 }: WaterTrendChartProps) {
   return (
     <MetricTrendChart
-      title="Agua directa en sitio — EE. UU."
+      title="Agua directa en sitio, EE. UU."
       yAxisLabel="mil M L"
       yearMin={DC_WATER_YEAR_MIN}
       yearMax={DC_WATER_YEAR_MAX}
@@ -189,7 +189,7 @@ export function WaterTrendChart({
       valueMax={DC_WATER_BIL_L_MAX}
       points={waterMetricPoints}
       valueFormat={v => `${v} mil M L`}
-      note="Consumo directo estimado (Fig. 5.9, LBNL-2001637). Indirecto vía electricidad ≈ «casi 800» mil M L en 2023 (Fig. 5.10; mix regional, sin PPAs por sitio)."
+      note="Consumo directo estimado (Fig. 5.9, LBNL-2001637). Indirecto vía electricidad ≈ casi 800 mil M L en 2023 (Fig. 5.10; mix regional, sin PPAs por sitio)."
       lineRef={lineRef}
       pointRefs={pointRefs}
       labelRefs={labelRefs}
@@ -210,7 +210,7 @@ export function EnergyTrendChart({
 }: EnergyTrendChartProps) {
   return (
     <MetricTrendChart
-      title="Electricidad de data centers — EE. UU."
+      title="Electricidad de data centers, EE. UU."
       yAxisLabel="TWh/año"
       yearMin={DC_ENERGY_YEAR_MIN}
       yearMax={DC_ENERGY_YEAR_MAX}
@@ -218,7 +218,7 @@ export function EnergyTrendChart({
       valueMax={DC_ENERGY_TWH_MAX}
       points={energyMetricPoints}
       valueFormat={v => `${v} TWh`}
-      note="Serie LBNL Figure ES-1 (2024 Report). 2014–2016 ~meseta; después acelera con IA/GPU. Proyecciones 2028 en el informe — no mostradas aquí."
+      note="Serie LBNL Figure ES-1 (2024 Report). 2014–2016 ~meseta; después acelera con IA/GPU. Proyecciones 2028 en el informe, no mostradas aquí."
       lineRef={lineRef}
       pointRefs={pointRefs}
       labelRefs={labelRefs}

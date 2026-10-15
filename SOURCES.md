@@ -1,4 +1,4 @@
-# Fuentes — Paso 0 (IA + servidores)
+# Fuentes, Paso 0 (IA + servidores)
 
 Referencias del proyecto. Los IDs coinciden con `src/sources.ts` (pie de diapositiva).
 
@@ -124,7 +124,7 @@ En la comparación final se cruza con `doe` (consolidar cargas en menos servidor
 | `berkeley2024` | LBNL-2001637: electricidad, agua, emisiones (EE. UU., 2014–2023 + escenarios 2028) | https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report |
 | `lbnlUsDc2024Pdf` | Mismo informe (PDF, dic. 2024) | PDF en `eta-publications.lbl.gov` |
 | `berkeley2026` | Actualización 2025 del informe LBNL (proyecciones; no en gráfica) | https://www.energy.gov/documents/united-states-data-center-energy-usage-report-2025-update |
-| `lbnlDcWater2024` | Agua directa 21,2 → 66 mil M L (2014→2023, Fig. 5.9); indirecta «casi 800» mil M L (2023, Fig. 5.10) | mismo informe LBNL-2001637 |
+| `lbnlDcWater2024` | Agua directa 21,2 → 66 mil M L (2014→2023, Fig. 5.9); indirecta casi 800 mil M L (2023, Fig. 5.10) | mismo informe LBNL-2001637 |
 | `usgsWaterUseTerminology` | Extracción vs uso consumptivo; return flow | https://www.usgs.gov/mission-areas/water-resources/science/water-use-terminology |
 | `wriAqueductWaterRisk` | Estrés hídrico por cuenca (contexto local) | https://www.wri.org/aqueduct |
 | `leiDcWaterReview2025` | Variabilidad por workload/sitio; no hay ml/prompt universal | https://doi.org/10.1016/j.resconrec.2024.107876 |
@@ -139,12 +139,12 @@ En la comparación final se cruza con `doe` (consolidar cargas en menos servidor
 | `googleWaterStewardship2023` | Compromisos agua; Douglas County reutilizada | https://blog.google/company-news/outreach-and-initiatives/sustainability/new-water-stewardship-commitments/ |
 | `googleDouglasReuseWired2012` | Sistema sidestream WSA → torres Google | https://www.wired.com/2012/03/google-sewer-water/ |
 | `trellisGoogleDcWater2022` | 422 M gal retirados vs 13,2 M potables (2021) | https://trellis.net/article/sip-or-guzzle-heres-how-googles-data-centers-use-water/ |
-| `googleGeminiEnvMetrics2025` | Ejemplo medido prompt mediano Gemini Apps (Wh/agua) — no universal | https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini |
+| `googleGeminiEnvMetrics2025` | Ejemplo medido prompt mediano Gemini Apps (Wh/agua), no universal | https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini |
 | `garCarbonAwareRouting` | Contexto routing / carbon-aware (escena energía) | https://arxiv.org/abs/2605.11603 |
-| `carbonAwareSdk` | Nota bajo «Programado ~15:00» — pronósticos y ventana óptima | https://github.com/microsoft/carbon-aware-sdk |
-| `carbonAwareScheduler` | Misma nota — scheduling multi-región (Azure, etc.) | https://docs.carbonaware.dev/scheduler/ |
+| `carbonAwareSdk` | Nota bajo Programado ~15:00, pronósticos y ventana óptima | https://github.com/microsoft/carbon-aware-sdk |
+| `carbonAwareScheduler` | Misma nota, scheduling multi-región (Azure, etc.) | https://docs.carbonaware.dev/scheduler/ |
 
-Gráficas: `src/data/dcWaterTrend.ts`, `src/data/dcEnergyTrend.ts`, `src/data/lbnlUsDc2024.ts` — LBNL-2001637 (modelo, no medición universal). Agua directa 2014–2023: totales anuales de la Fig. 5.9 vía `scripts/extract-lbnl-fig59.py` (salida `scripts/fig59-extract.json`; PDF local `tmp-lbnl-2001637.pdf`).
+Gráficas: `src/data/dcWaterTrend.ts`, `src/data/dcEnergyTrend.ts`, `src/data/lbnlUsDc2024.ts`, LBNL-2001637 (modelo, no medición universal). Agua directa 2014–2023: totales anuales de la Fig. 5.9 vía `scripts/extract-lbnl-fig59.py` (salida `scripts/fig59-extract.json`; PDF local `tmp-lbnl-2001637.pdf`).
 
 ## Agua (`paso0-03-agua.tsx`)
 
@@ -156,7 +156,7 @@ Marcadores: … → `agua-enfriamiento-tipos-listo` → `agua-evaporacion-local`
 | `lbnlFigure510IndirectWater` | Indirecto ~800 mil M L (2023); intensidad 4,52 L/kWh |
 | `dcdLbnlWater2024` | Resumen periodístico alineado al informe DOE/LBNL |
 
-Datos: `src/data/dcWaterTrend.ts` (directo, Fig. 5.9 extraída), `src/data/dcWaterDirectGrowth.ts`, `src/data/dcIndirectWaterTrend.ts` (indirecto interanual calibrado a TWh × 800/176 — ver comentario en archivo).
+Datos: `src/data/dcWaterTrend.ts` (directo, Fig. 5.9 extraída), `src/data/dcWaterDirectGrowth.ts`, `src/data/dcIndirectWaterTrend.ts` (indirecto interanual calibrado a TWh × 800/176, ver comentario en archivo).
 
 Intro `agua-calor-*`: diagrama DC + termómetro (calor genérico del cómputo, no solo IA).
 
@@ -186,7 +186,7 @@ Marcadores: … → `energia-meta-grafica-inflection` → `energia-grid-carbon-i
 
 ## Recomendaciones (`paso0-05-recomendaciones.tsx`)
 
-Marcadores: `recomendaciones-inicio` → `recomendaciones-necesitamos-ia` → `recomendaciones-modelo-adecuado` → `recomendaciones-routing` → `recomendaciones-pregunta-correcta` → `recomendaciones-listo`.
+Marcadores: … → `recomendaciones-pregunta-correcta` → `recomendaciones-herramienta-trabajo` → `recomendaciones-listo`
 
 | ID | Uso en la charla | Enlace |
 |----|------------------|--------|

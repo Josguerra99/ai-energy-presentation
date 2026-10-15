@@ -517,7 +517,7 @@ export function AiBehindTheScenes({
       />
       <Txt
         ref={noteRef}
-        text="(+ tokenizer y embeddings — el núcleo es el Transformer)"
+        text="(+ tokenizer y embeddings, el núcleo es el Transformer)"
         fontFamily={theme.bodyFont}
         fontSize={20}
         fill={theme.grey}

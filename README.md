@@ -23,7 +23,7 @@ Pantalla **1920×1080**, fondo amarillo y texto negro pensados para buen contras
 
 En **Video Settings**, deja **Size** en `1920 × 1080` y **Resolution scale** en `1`. El layout usa `width/height: 100%` para encajar en pantalla completa; si subes el tamaño de escena (p. ej. 4K) sin escala, el contenido se verá más pequeño pero dentro del marco.
 
-Si el layout se ve raro (texto encima, pie en tiras): lee [MOTION-CANVAS-LAYOUT.md](./MOTION-CANVAS-LAYOUT.md) — Motion Canvas **hereda flex del padre**; no se comporta como HTML/CSS por defecto.
+Si el layout se ve raro (texto encima, pie en tiras): lee [MOTION-CANVAS-LAYOUT.md](./MOTION-CANVAS-LAYOUT.md), Motion Canvas **hereda flex del padre**; no se comporta como HTML/CSS por defecto.
 
 ## Contenido actual (8 escenas en `project.ts`)
 

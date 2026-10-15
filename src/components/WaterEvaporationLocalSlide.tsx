@@ -15,7 +15,7 @@ const STACK_Y = -58;
 const facts = [
   {
     title: 'El agua evaporada no “sale” del planeta',
-    body: 'Entra al ciclo hidrológico: vapor, nubes y precipitación — a menudo en otro lugar o en otro momento.',
+    body: 'Entra al ciclo hidrológico: vapor, nubes y precipitación, a menudo en otro lugar o en otro momento.',
   },
   {
     title: 'El impacto sí es local y regional',

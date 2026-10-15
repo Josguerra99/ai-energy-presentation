@@ -1,7 +1,7 @@
 ---
 description: Motion Canvas slides — zonas fijas, sin solapamientos; revisar layout antes de dar por hecho
 globs: src/**/*.tsx
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Slides Motion Canvas — no superponer elementos
@@ -12,9 +12,10 @@ Antes de cerrar un slide nuevo o una gráfica, **comprobar que título, subtítu
 
 1. **`layout={false}`** en contenedores con gráficos, pies, overlays o posiciones `x`/`y` manuales (ver `MOTION-CANVAS-LAYOUT.md`).
 2. **`Txt` con leyenda o etiquetas:** `textAlign="left"` + **`offsetX={-1}`** (ancla izquierda). Sin `offsetX`, el texto se centra en `x` y invade gráficos vecinos.
-3. **Columnas lado a lado:** calcular borde derecho del gráfico (`centerX + radius/ halfWidth`) y borde izquierdo de la leyenda; dejar **≥ 80 px** de hueco. Copiar patrones existentes (`TrainInferParityPieChart`, `MetricTrendChart`, `WaterDirectIndirectCompareSlide`).
-4. **Un slide = zonas reservadas:** título (y ≈ −320), subtítulo (−260), cuerpo (centro), caption/nota (y ≥ +260). No colocar leyendas largas en y=0 si el pie ya usa y=+288.
-5. **Tras editar layout:** ejecutar `npm run build` y, si el usuario puede ver preview, pedir un vistazo o revisar screenshot mental con coordenadas — no asumir que “se ve bien”.
+3. **Texto dentro de tarjetas / burbujas (ancho fijo):** partir frases largas en **varias `Txt`** con `y` distintos y `width = innerW`; **no** asumir que `width` + wrap evita recorte en el borde derecho.
+4. **Columnas lado a lado:** calcular borde derecho del gráfico (`centerX + radius/ halfWidth`) y borde izquierdo de la leyenda; dejar **≥ 80 px** de hueco. Copiar patrones existentes (`TrainInferParityPieChart`, `MetricTrendChart`, `WaterDirectIndirectCompareSlide`).
+5. **Un slide = zonas reservadas:** título (y ≈ −320), subtítulo (−260), cuerpo (centro), caption/nota (y ≥ +260). No colocar leyendas largas en y=0 si el pie ya usa y=+288.
+6. **Tras editar layout:** ejecutar `npm run build` y, si el usuario puede ver preview, pedir un vistazo o revisar screenshot mental con coordenadas — no asumir que “se ve bien”.
 
 ## Pie + leyenda (plantilla)
 
@@ -28,7 +29,14 @@ const LEGEND_X = 140; // PIE_X + PIE_R + gap ≤ LEGEND_X − margen swatch
 </Layout>
 ```
 
+## Yields en escenas (`paso0-*.tsx`)
+
+- Si piden **«agrega un yield»** (sin «segundos» / «espera N s»): **`yield* beginSlide('marcador')`** — pausa de **input** (Espacio en PRESENT), no temporizador.
+- **`waitFor(n)`** solo cuando la **animación** lo exija (encadenar tweens, duración de loop); no usarlo entre ejemplos o beats que el presentador debe disparar.
+- Si piden tiempo explícito («un par de segundos en la animación»), ahí sí `waitFor`.
+
 ## Prohibido
 
 - Apilar varios `Txt` en el mismo `(x,y)` sin flex (`VStack`) o sin `y` distintos.
 - Reutilizar coordenadas de un slide en otro sin re-leer `WATER_SLIDE_LAYOUT_H` / márgenes del pie de fuentes.
+- Confundir «yield» del usuario con `waitFor` arbitrario entre casos de demo.

@@ -82,7 +82,7 @@ export function WaterMicrosoftClosedLoopSlide({
   return (
     <Layout layout={false} width={1680} height={WATER_SLIDE_LAYOUT_H}>
       <Txt
-        text="Microsoft — refrigeración en circuito cerrado"
+        text="Microsoft, refrigeración en circuito cerrado"
         fontFamily={theme.pixelFont}
         fontSize={34}
         fill={theme.black}

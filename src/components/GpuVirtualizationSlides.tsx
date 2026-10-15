@@ -130,7 +130,7 @@ export function MigVirtualizationSlide() {
           x={-480}
         />
         <Txt
-          text="GPU A100 (ej.) — MIG enabled"
+          text="GPU A100 (ej.), MIG enabled"
           fontFamily={theme.pixelFont}
           fontSize={24}
           fill={theme.white}
@@ -184,8 +184,8 @@ export function MigVirtualizationSlide() {
           lines={[
             'SM, VRAM, caché y ancho de banda asignados por diseño (aislamiento + QoS).',
             'Solo combinaciones de perfiles soportadas (p. ej. hasta ~7 instancias en A100).',
-            'Reconfigurar layout suele requerir GPU idle / reset — no es ballooning.',
-            'NCCL / multi-GPU P2P entre instancias: no — entrenamiento distribuido = GPU entera.',
+            'Reconfigurar layout suele requerir GPU idle / reset, no es ballooning.',
+            'NCCL / multi-GPU P2P entre instancias: no, entrenamiento distribuido = GPU entera.',
           ]}
         />
       </Layout>

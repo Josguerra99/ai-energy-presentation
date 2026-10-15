@@ -90,7 +90,7 @@ export function DcCoolingTypesSlide({
         width={1500}
       />
       <Txt
-        text="Dos familias comunes — distinto consumo de agua (huella directa)"
+        text="Dos familias comunes, distinto consumo de agua (huella directa)"
         fontFamily={theme.bodyFont}
         fontSize={21}
         fontWeight={600}
@@ -257,7 +257,7 @@ export function DcCoolingTypesSlide({
             y={CLOSED_COOLER_Y}
           />
           <Txt
-            text="Fluido recircula — poco o nulo consumo diario"
+            text="Fluido recircula, poco o nulo consumo diario"
             fontFamily={theme.bodyFont}
             fontSize={15}
             fontWeight={600}
@@ -272,7 +272,7 @@ export function DcCoolingTypesSlide({
 
       <Txt
         ref={noteRef}
-        text="El total «directo» del LBNL mezcla diseños: clima seco favorece evaporativo; nuevos sitios IA prueban menos evaporación."
+        text="El total directo del LBNL mezcla diseños: clima seco favorece evaporativo; nuevos sitios IA prueban menos evaporación."
         fontFamily={theme.bodyFont}
         fontSize={18}
         fontWeight={500}

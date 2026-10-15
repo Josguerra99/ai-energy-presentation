@@ -60,7 +60,7 @@ export function RightToolIntroSlide() {
       title="Menos impacto: elegir la herramienta"
       subtitle="Del data center a cada prompt"
       bullets={[
-        'No todo problema necesita un LLM grande — a veces ni siquiera ML.',
+        'No todo problema necesita un LLM grande, a veces ni siquiera ML.',
         'La inferencia (cada consulta) suma más que entrenar una vez, a escala de uso.',
         'Objetivo: la calidad mínima que el caso acepta, con el menor cómputo posible.',
       ]}
@@ -102,7 +102,7 @@ export function HeavyLlmWhenSlide() {
       title="Cuándo sí un LLM pesado"
       bullets={[
         'Razonamiento largo, mucho contexto, decisiones de alto riesgo o bajo margen de error.',
-        'Programación sensible o refactor grande — asistentes tipo Claude/GPT: más tokens y GPU.',
+        'Programación sensible o refactor grande, asistentes tipo Claude/GPT: más tokens y GPU.',
         'Medicina, legal, seguridad: puede exigirse el modelo más capaz aunque cueste más.',
         'No es “mal usar lo grande”: es reservarlo para cuando el costo del error lo justifica.',
       ]}
@@ -116,7 +116,7 @@ export function CarbonAwareWorkshopBridgeSlide() {
       title="Carbon-aware computing"
       subtitle="Metas de intensidad + elegir cuándo ejecutar"
       bullets={[
-        'Microsoft y Google bajan WUE y buscan agua positiva — pero el total puede seguir subiendo si crece la demanda.',
+        'Microsoft y Google bajan WUE y buscan agua positiva, pero el total puede seguir subiendo si crece la demanda.',
         'El mix eléctrico cambia hora a hora y por región: el mismo kWh no tiene la misma huella siempre.',
         'Carbon-aware: posponer batch e inferencia a ventanas más limpias (taller en vivo: predecir y programar).',
         'Complementa eficiencia en sitio: menos agua/energía por kWh y menos kWh en el momento más limpio.',

@@ -53,12 +53,12 @@ export const sources: Record<string, SourceRef> = {
   },
   deepSeekApiPricing: {
     id: 'deepSeekApiPricing',
-    short: 'DeepSeek API — deepseek-chat USD/MTok (oficial)',
+    short: 'DeepSeek API, deepseek-chat USD/MTok (oficial)',
     url: 'https://api-docs.deepseek.com/quick_start/pricing',
   },
   nistDeepSeekEval2025: {
     id: 'nistDeepSeekEval2025',
-    short: 'NIST CAISI — OpenRouter 97.5M req / 4 wks (DeepSeek V3.1)',
+    short: 'NIST CAISI, OpenRouter 97.5M req / 4 wks (DeepSeek V3.1)',
     url: 'https://www.nist.gov/system/files/documents/2025/09/30/CAISI_Evaluation_of_DeepSeek_AI_Models.pdf',
   },
   metaLlamaApiHosted: {
@@ -208,7 +208,7 @@ export const sources: Record<string, SourceRef> = {
   },
   nvidiaMigBlog: {
     id: 'nvidiaMigBlog',
-    short: 'NVIDIA blog, A100 MIG — inference multi-tenant & training limits',
+    short: 'NVIDIA blog, A100 MIG, inference multi-tenant & training limits',
     url: 'https://developer.nvidia.com/blog/getting-the-most-out-of-the-a100-gpu-with-multi-instance-gpu/',
   },
   awsEksMig: {
@@ -223,7 +223,7 @@ export const sources: Record<string, SourceRef> = {
   },
   lbnlDcWater2024: {
     id: 'lbnlDcWater2024',
-    short: 'LBNL 2024 — direct/indirect water (Fig. 5.9–5.10, EE. UU.)',
+    short: 'LBNL 2024, direct/indirect water (Fig. 5.9–5.10, EE. UU.)',
     url: 'https://eta-publications.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report',
   },
   usgsWaterUseTerminology: {
@@ -233,22 +233,22 @@ export const sources: Record<string, SourceRef> = {
   },
   wriAqueductWaterRisk: {
     id: 'wriAqueductWaterRisk',
-    short: 'WRI Aqueduct — water risk & stress by basin',
+    short: 'WRI Aqueduct, water risk & stress by basin',
     url: 'https://www.wri.org/aqueduct',
   },
   dcdLbnlWater2024: {
     id: 'dcdLbnlWater2024',
-    short: 'DCD / LBNL 2024 — 21,2→66 mil M L directo (2014→2023)',
+    short: 'DCD / LBNL 2024, 21,2→66 mil M L directo (2014→2023)',
     url: 'https://www.datacenterdynamics.com/en/news/doe-data-centers-consumed-44-of-us-power-in-2023-could-hit-12-by-2028/',
   },
   lbnlFigure59DirectWater: {
     id: 'lbnlFigure59DirectWater',
-    short: 'LBNL-2001637 Fig. 5.9 — direct water by DC type (2014–2028)',
+    short: 'LBNL-2001637 Fig. 5.9, direct water by DC type (2014–2028)',
     url: 'https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf',
   },
   lbnlFigure510IndirectWater: {
     id: 'lbnlFigure510IndirectWater',
-    short: 'LBNL-2001637 Fig. 5.10 — indirect water & grid intensity (2023)',
+    short: 'LBNL-2001637 Fig. 5.10, indirect water & grid intensity (2023)',
     url: 'https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report.pdf',
   },
   leiDcWaterReview2025: {
@@ -263,57 +263,57 @@ export const sources: Record<string, SourceRef> = {
   },
   microsoftDatacenterWue: {
     id: 'microsoftDatacenterWue',
-    short: 'Microsoft datacenters — PUE/WUE (FY24–FY25)',
+    short: 'Microsoft datacenters, PUE/WUE (FY24–FY25)',
     url: 'https://datacenters.microsoft.com/sustainability/efficiency/',
   },
   microsoftZeroWaterEvapCooling2024: {
     id: 'microsoftZeroWaterEvapCooling2024',
-    short: 'Microsoft Cloud Blog (dic. 2024) — cero evaporación, lazo cerrado',
+    short: 'Microsoft Cloud Blog (dic. 2024), cero evaporación, lazo cerrado',
     url: 'https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/12/09/sustainable-by-design-next-generation-datacenters-consume-zero-water-for-cooling/',
   },
   microsoftDatacenterLiquidCooling2024: {
     id: 'microsoftDatacenterLiquidCooling2024',
-    short: 'Microsoft Cloud Blog (jul. 2024) — cold plates y Sidekick',
+    short: 'Microsoft Cloud Blog (jul. 2024), cold plates y Sidekick',
     url: 'https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/07/25/sustainable-by-design-transforming-datacenter-water-efficiency/',
   },
   microsoftNatureCoolingLifecycle2025: {
     id: 'microsoftNatureCoolingLifecycle2025',
-    short: 'Microsoft / Nature (2025) — LCA de tecnologías de enfriamiento',
+    short: 'Microsoft / Nature (2025), LCA de tecnologías de enfriamiento',
     url: 'https://news.microsoft.com/source/features/sustainability/microsoft-quantifies-environmental-impacts-of-datacenter-cooling-from-cradle-to-grave-in-new-nature-study/',
   },
   dcdMicrosoftClosedLoop2024: {
     id: 'dcdMicrosoftClosedLoop2024',
-    short: 'DatacenterDynamics (dic. 2024) — pilotos Phoenix y Mt. Pleasant',
+    short: 'DatacenterDynamics (dic. 2024), pilotos Phoenix y Mt. Pleasant',
     url: 'https://www.datacenterdynamics.com/en/news/microsofts-upcoming-data-centers-to-use-closed-loop-zero-water-evaporation-design/',
   },
   microsoftWaterStewardship2026: {
     id: 'microsoftWaterStewardship2026',
-    short: 'Microsoft blog — water intensity & replenishment (FY25)',
+    short: 'Microsoft blog, water intensity & replenishment (FY25)',
     url: 'https://blogs.microsoft.com/blog/2026/06/24/inside-microsofts-two-decade-push-to-cut-water-intensity-while-scaling-for-growth/',
   },
   googleDatacenterWater: {
     id: 'googleDatacenterWater',
-    short: 'Google — responsible water at data centers',
+    short: 'Google, responsible water at data centers',
     url: 'https://datacenters.google/water/',
   },
   googleWaterStewardship2023: {
     id: 'googleWaterStewardship2023',
-    short: 'Google blog (2023) — reutilización y utilities locales',
+    short: 'Google blog (2023), reutilización y utilities locales',
     url: 'https://blog.google/company-news/outreach-and-initiatives/sustainability/new-water-stewardship-commitments/',
   },
   googleDouglasReuseWired2012: {
     id: 'googleDouglasReuseWired2012',
-    short: 'WIRED (2012) — Douglas County, agua reutilizada en torres',
+    short: 'WIRED (2012), Douglas County, agua reutilizada en torres',
     url: 'https://www.wired.com/2012/03/google-sewer-water/',
   },
   trellisGoogleDcWater2022: {
     id: 'trellisGoogleDcWater2022',
-    short: 'Trellis (2022) — cifras retiro/potable Douglas County 2021',
+    short: 'Trellis (2022), cifras retiro/potable Douglas County 2021',
     url: 'https://trellis.net/article/sip-or-guzzle-heres-how-googles-data-centers-use-water/',
   },
   googleGeminiEnvMetrics2025: {
     id: 'googleGeminiEnvMetrics2025',
-    short: 'Google Cloud — Gemini Apps median env. metrics (May 2025)',
+    short: 'Google Cloud, Gemini Apps median env. metrics (May 2025)',
     url: 'https://cloud.google.com/blog/products/ai-machine-learning/understanding-the-environmental-impact-of-gemini',
   },
   chiSmallerModel2025: {
@@ -323,12 +323,12 @@ export const sources: Record<string, SourceRef> = {
   },
   frugalGpt2023: {
     id: 'frugalGpt2023',
-    short: 'Chen et al., FrugalGPT — model routing e inferencia (2023)',
+    short: 'Chen et al., FrugalGPT, model routing e inferencia (2023)',
     url: 'https://arxiv.org/abs/2305.05176',
   },
   llmEnergyAccuracy2025: {
     id: 'llmEnergyAccuracy2025',
-    short: 'ACM, inferencia LLM — trade-off energía vs precisión',
+    short: 'ACM, inferencia LLM, trade-off energía vs precisión',
     url: 'https://dl.acm.org/doi/10.1145/3744255.3811741',
   },
   garCarbonAwareRouting: {
@@ -338,27 +338,27 @@ export const sources: Record<string, SourceRef> = {
   },
   carbonAwareSdk: {
     id: 'carbonAwareSdk',
-    short: 'Carbon Aware SDK (Microsoft / GSF) — pronóstico e intensidad por región',
+    short: 'Carbon Aware SDK (Microsoft / GSF), pronóstico e intensidad por región',
     url: 'https://github.com/microsoft/carbon-aware-sdk',
   },
   carbonAwareScheduler: {
     id: 'carbonAwareScheduler',
-    short: 'CarbonAware Scheduler — API REST + Python (zonas Azure, AWS, GCP)',
+    short: 'CarbonAware Scheduler, API REST + Python (zonas Azure, AWS, GCP)',
     url: 'https://docs.carbonaware.dev/scheduler/',
   },
   ieaEnergyAi2025: {
     id: 'ieaEnergyAi2025',
-    short: 'IEA, Energy and AI (2025) — 415 TWh DC, ~1,5 % global',
+    short: 'IEA, Energy and AI (2025), 415 TWh DC, ~1,5 % global',
     url: 'https://www.iea.org/reports/energy-and-ai/executive-summary',
   },
   ieaEnergyAiDemand: {
     id: 'ieaEnergyAiDemand',
-    short: 'IEA, Energy demand from AI — demanda eléctrica de data centers',
+    short: 'IEA, Energy demand from AI, demanda eléctrica de data centers',
     url: 'https://www.iea.org/reports/energy-and-ai/energy-demand-from-aI',
   },
   ieaKeyQuestionsEnergyAi2026: {
     id: 'ieaKeyQuestionsEnergyAi2026',
-    short: 'IEA, Key Questions on Energy and AI (2026) — 485 TWh 2025, ~950 TWh 2030',
+    short: 'IEA, Key Questions on Energy and AI (2026), 485 TWh 2025, ~950 TWh 2030',
     url: 'https://www.iea.org/reports/key-questions-on-energy-and-ai/executive-summary',
   },
   ieaDcConsumptionChart: {
@@ -388,12 +388,12 @@ export const sources: Record<string, SourceRef> = {
   },
   googleEnvironmentalReport2026: {
     id: 'googleEnvironmentalReport2026',
-    short: 'Google, 2026 Environmental Report — DC 42,4 TWh (2025)',
+    short: 'Google, 2026 Environmental Report, DC 42,4 TWh (2025)',
     url: 'https://sustainability.google/reports/google-2026-environmental-report/',
   },
   googleFy2025AssuranceDc: {
     id: 'googleFy2025AssuranceDc',
-    short: 'Alphabet FY2025 assurance — data centers 42 415 800 MWh',
+    short: 'Alphabet FY2025 assurance, data centers 42 415 800 MWh',
     url: 'https://sustainability.google/files/alphabet-fy2025-environmental-indicators-assurance-letter/',
   },
   googleEnvReportBlog2025: {

@@ -86,7 +86,7 @@ export function WaterFact3MeasurableUsSlide() {
     <WaterFactSlide
       index={3}
       title="Consumo directo medible y significativo (EE. UU.)"
-      body={`El informe LBNL-2001637 estima consumo directo en sitio de unos ${US_DC_WATER_DIRECT_BIL_L_2023} mil millones de litros en ${US_DC_WATER_FOOTPRINT_YEAR} (Fig. 5.9) — modelo bottom-up, no lecturas de contador en cada edificio. Cubre todos los centros de datos del país; en 2023 hyperscale y colocation concentran ~84 % de ese directo.`}
+      body={`El informe LBNL-2001637 estima consumo directo en sitio de unos ${US_DC_WATER_DIRECT_BIL_L_2023} mil millones de litros en ${US_DC_WATER_FOOTPRINT_YEAR} (Fig. 5.9), modelo bottom-up, no lecturas de contador en cada edificio. Cubre todos los centros de datos del país; en 2023 hyperscale y colocation concentran ~84 % de ese directo.`}
     />
   );
 }
@@ -162,7 +162,7 @@ export function WaterDirectIndirectCompareSlide({
         width={1500}
       />
       <Txt
-        text={`EE. UU., ${US_DC_WATER_FOOTPRINT_YEAR} — LBNL-2001637 (mil millones de litros/año, estimaciones)`}
+        text={`EE. UU., ${US_DC_WATER_FOOTPRINT_YEAR}, LBNL-2001637 (mil millones de litros/año, estimaciones)`}
         fontFamily={theme.bodyFont}
         fontSize={21}
         fontWeight={600}
@@ -248,7 +248,7 @@ export function WaterDirectIndirectCompareSlide({
 
       <Txt
         ref={captionRef}
-        text="Indirecto ≈ agua consumptiva en plantas según mix regional por balancing authority; el informe indica «casi 800 mil millones de litros» en 2023. No incluye PPAs ni generación «behind the meter» por sitio."
+        text="Indirecto ≈ agua consumptiva en plantas según mix regional por balancing authority; el informe indica casi 800 mil millones de litros en 2023. No incluye PPAs ni generación behind the meter por sitio."
         fontFamily={theme.bodyFont}
         fontSize={22}
         fill={theme.black}

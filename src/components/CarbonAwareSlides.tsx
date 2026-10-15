@@ -37,7 +37,7 @@ export function GridCarbonImpactSlide() {
         lineHeight={44}
       />
       <Txt
-        text="Un data center consume kWh de la red regional — no siempre de fuentes limpias"
+        text="Un data center consume kWh de la red regional, no siempre de fuentes limpias"
         fontFamily={theme.bodyFont}
         fontSize={22}
         fontWeight={600}
@@ -349,7 +349,7 @@ export function CarbonAwareSchedulingSlide({
       <Txt
         ref={sdkHintRef}
         text={
-          'En producción: Carbon Aware SDK (Microsoft / GSF) — API, CLI y librería C# con pronósticos y ventana óptima.\n' +
+          'En producción: Carbon Aware SDK (Microsoft / GSF), API, CLI y librería C# con pronósticos y ventana óptima.\n' +
           'CarbonAware Scheduler (REST / Python): elige hora y región Azure según intensidad prevista. ' +
           'Azure Carbon Optimization API = reportes de emisiones, no scheduling.'
         }

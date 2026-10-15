@@ -46,7 +46,7 @@ export type WaterTrendSlideProps = {
 const waterDirectInflectionCaption = (() => {
   const a = dcWaterDirectGrowthSinceAcceleration;
   const fmt = (v: number) => String(v).replace('.', ',');
-  return `${DC_WATER_DIRECT_ACCELERATION_YEAR} — crecimiento acelerado\n+${a.pct} % (${fmt(a.fromBilL)} → ${fmt(a.toBilL)} mil M L)`;
+  return `${DC_WATER_DIRECT_ACCELERATION_YEAR}, crecimiento acelerado\n+${a.pct} % (${fmt(a.fromBilL)} → ${fmt(a.toBilL)} mil M L)`;
 })();
 
 export function WaterDirectGrowthTrendSlide({
@@ -56,7 +56,7 @@ export function WaterDirectGrowthTrendSlide({
 }: WaterTrendSlideProps) {
   return (
     <MetricTrendChart
-      title="Agua directa en sitio — EE. UU."
+      title="Agua directa en sitio, EE. UU."
       yAxisLabel="mil M L"
       yearMin={DC_WATER_YEAR_MIN}
       yearMax={DC_WATER_YEAR_MAX}
@@ -79,7 +79,7 @@ export function WaterDirectGrowthTrendSlide({
 export function WaterIndirectGrowthTrendSlide(props: WaterTrendSlideProps) {
   return (
     <MetricTrendChart
-      title="Agua indirecta vía electricidad — EE. UU."
+      title="Agua indirecta vía electricidad, EE. UU."
       yAxisLabel="mil M L"
       yearMin={DC_INDIRECT_WATER_YEAR_MIN}
       yearMax={DC_INDIRECT_WATER_YEAR_MAX}
@@ -87,7 +87,7 @@ export function WaterIndirectGrowthTrendSlide(props: WaterTrendSlideProps) {
       valueMax={DC_INDIRECT_WATER_BIL_L_MAX}
       points={indirectPoints}
       valueFormat={v => `~${v} mil M L`}
-      note="2023: «casi 800 mil M L» (LBNL Fig. 5.10) — agua consumptiva en plantas del mix que alimenta los data centers (térmicas, hidro, etc.), solo sector DC en EE. UU. Años previos: proporcional a TWh DC del mismo informe, calibrado a 2023."
+      note="2023: casi 800 mil M L (LBNL Fig. 5.10), agua consumptiva en plantas del mix que alimenta los data centers (térmicas, hidro, etc.), solo sector DC en EE. UU. Años previos: proporcional a TWh DC del mismo informe, calibrado a 2023."
       lineColor={theme.magenta}
       pointColor={theme.cyan}
       {...props}

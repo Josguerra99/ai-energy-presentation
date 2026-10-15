@@ -48,7 +48,7 @@ export function WaterGoogleReclaimedSlide({
   return (
     <Layout layout={false} width={1680} height={WATER_SLIDE_LAYOUT_H}>
       <Txt
-        text="Google — agua reutilizada en centros de datos"
+        text="Google, agua reutilizada en centros de datos"
         fontFamily={theme.pixelFont}
         fontSize={34}
         fill={theme.black}
@@ -225,7 +225,7 @@ export function WaterGoogleReclaimedSlide({
             y={RIVER_Y}
           />
           <Txt
-            text={'Devuelta al río Chattahoochee — agua tratada en el campus (no evaporada)'}
+            text={'Devuelta al río Chattahoochee, agua tratada en el campus (no evaporada)'}
             fontFamily={theme.bodyFont}
             fontSize={17}
             fontWeight={700}

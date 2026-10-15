@@ -91,7 +91,7 @@ export const TRAINING_MODEL_PROFILES: readonly TrainingModelProfile[] = [
       {
         label: 'Costo de entrenar (paper)',
         value:
-          'USD 5,576 M — 2 788 000 GPU·h × 2 USD/GPU·h (tarifa asumida)',
+          'USD 5,576 M, 2 788 000 GPU·h × 2 USD/GPU·h (tarifa asumida)',
         costHighlight: 'run',
       },
       {
@@ -297,7 +297,7 @@ const PROMPT_FACTS: readonly TrainingModelFact[] = [
 
 const TRAIN_SCALE_FACTS: readonly TrainingModelFact[] = [
   {label: 'Cuándo', value: 'Antes de que el modelo sirva a usuarios'},
-  {label: 'Cuántas veces', value: 'Pocas — a menudo una vez por versión'},
+  {label: 'Cuántas veces', value: 'Pocas, a menudo una vez por versión'},
   {label: 'Escala', value: 'Mucho cómpute junto · semanas, miles de GPUs'},
   {label: 'Tipo de costo', value: 'Hardware, energía, tiempo de cluster'},
 ];

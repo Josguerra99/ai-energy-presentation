@@ -52,13 +52,13 @@ export function WaterDirectIndirectPieSlide({
     {
       id: 'direct',
       fill: theme.cyan,
-      title: 'Directo — refrigeración en el edificio',
+      title: 'Directo, refrigeración en el edificio',
       value: `${US_DC_WATER_DIRECT_BIL_L_2023} mil M L · ${directPct} %`,
     },
     {
       id: 'indirect',
       fill: theme.magenta,
-      title: 'Indirecto — plantas eléctricas del mix regional',
+      title: 'Indirecto, plantas eléctricas del mix regional',
       value: `~${US_DC_WATER_INDIRECT_BIL_L_2023} mil M L · ${indirectPct} %`,
     },
   ] as const;
@@ -66,7 +66,7 @@ export function WaterDirectIndirectPieSlide({
   return (
     <Layout layout={false} width={1680} height={WATER_SLIDE_LAYOUT_H}>
       <Txt
-        text="Huella hídrica operativa — ¿dónde está el agua?"
+        text="Huella hídrica operativa, ¿dónde está el agua?"
         fontFamily={theme.pixelFont}
         fontSize={34}
         fill={theme.black}
@@ -76,7 +76,7 @@ export function WaterDirectIndirectPieSlide({
         width={1500}
       />
       <Txt
-        text={`EE. UU., centros de datos, ${dcWaterFootprintPieYear} — LBNL-2001637 (mil millones de litros/año)`}
+        text={`EE. UU., centros de datos, ${dcWaterFootprintPieYear}, LBNL-2001637 (mil millones de litros/año)`}
         fontFamily={theme.bodyFont}
         fontSize={21}
         fontWeight={600}
@@ -168,7 +168,7 @@ export function WaterDirectIndirectPieSlide({
 
       <Txt
         ref={captionRef}
-        text="Indirecto = agua consumptiva al generar la electricidad que usan los data centers (térmicas, nuclear, evaporación en embalses hidro, etc.), según dónde están ubicados y el mix de la red — no es agua en tubería hacia el rack. Solo sector DC nacional; no incluye PPAs ni generación «behind the meter» por sitio."
+        text="Indirecto = agua consumptiva al generar la electricidad que usan los data centers (térmicas, nuclear, evaporación en embalses hidro, etc.), según dónde están ubicados y el mix de la red, no es agua en tubería hacia el rack. Solo sector DC nacional; no incluye PPAs ni generación behind the meter por sitio."
         fontFamily={theme.bodyFont}
         fontSize={22}
         fill={theme.black}

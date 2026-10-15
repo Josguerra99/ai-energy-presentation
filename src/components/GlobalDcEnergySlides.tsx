@@ -122,7 +122,7 @@ export function GlobalDcEnergyGrowthChart({
   return (
     <Layout layout={false} width={1600} height={760}>
       <Txt
-        text="Consumo eléctrico mundial — centros de datos"
+        text="Consumo eléctrico mundial, centros de datos"
         fontFamily={theme.pixelFont}
         fontSize={36}
         fill={theme.black}
@@ -131,7 +131,7 @@ export function GlobalDcEnergyGrowthChart({
         y={-330}
       />
       <Txt
-        text={`${GLOBAL_DC_TWH_2025} TWh en 2025 — estimación IEA más reciente`}
+        text={`${GLOBAL_DC_TWH_2025} TWh en 2025, estimación IEA más reciente`}
         fontFamily={theme.bodyFont}
         fontSize={22}
         fontWeight={600}
@@ -363,8 +363,8 @@ function CompanyDcTrendChart({
       <Txt
         text={
           isGoogle
-            ? 'Electricidad en data centers — Google (desglose anual; dato 2025 en informe 2026)'
-            : `Electricidad en data centers — Meta (último total DC publicado: ${META_DC_LATEST_PUBLISHED_YEAR})`
+            ? 'Electricidad en data centers, Google (desglose anual; dato 2025 en informe 2026)'
+            : `Electricidad en data centers, Meta (último total DC publicado: ${META_DC_LATEST_PUBLISHED_YEAR})`
         }
         fontFamily={theme.bodyFont}
         fontSize={22}
@@ -476,7 +476,7 @@ function CompanyDcTrendChart({
       {!isGoogle && inflectionCaptionRef && accel ? (
         <Txt
           ref={inflectionCaptionRef}
-          text={`${META_DC_ACCELERATION_YEAR} — crecimiento acelerado\n+${accel.pct} % (${accel.fromTwh} → ${accel.toTwh} TWh)`}
+          text={`${META_DC_ACCELERATION_YEAR}, crecimiento acelerado\n+${accel.pct} % (${accel.fromTwh} → ${accel.toTwh} TWh)`}
           fontFamily={theme.bodyFont}
           fontSize={16}
           fontWeight={700}
